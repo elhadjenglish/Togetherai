@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TogetherAI</title><meta name="theme-color" content="#141110"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<title>TogetherAI</title><meta name="theme-color" content="#141110"><script src="config.js"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#faf5ef;--card:#fff;--ink:#2b2420;--mute:#8a7d73;--line:#eee3d8;--pri:#e0654f;--pri2:#f59a7c;--ok:#2f9e6b;--warn:#e0a21b;--bad:#d64545;--soft:#fdeee8;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
@@ -108,10 +108,11 @@ input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4
 .kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0}.kinds button{border:1.5px solid var(--line);background:var(--card2);color:var(--ink);border-radius:16px;padding:10px 4px;font-weight:700;font-size:13px;display:grid;gap:4px;justify-items:center}.kinds button i{font-style:normal;font-size:20px}.kinds button.on{border-color:var(--pri);background:var(--soft);color:var(--pri)}
 .verdict{padding:10px 14px;border-radius:14px;font-weight:800;font-size:16px;margin-bottom:6px}.verdict.ok{background:rgba(47,158,107,.16);color:var(--ok)}.verdict.risky{background:rgba(224,162,27,.16);color:var(--warn)}.verdict.no{background:rgba(214,69,69,.16);color:var(--bad)}
 .sw button{white-space:nowrap;font-size:14px;padding:6px 10px}
+.gate{max-width:420px;margin:0 auto;animation:up .4s both}.code{font-size:30px;letter-spacing:3px;font-weight:800;text-align:center;direction:ltr;padding:16px;margin:10px 0;border-radius:16px;background:var(--soft);user-select:all}.err{color:var(--bad);font-size:14px;margin:6px 0 0;line-height:1.6}
 </style></head><body><div id="app"></div>
 <script>
 /* ===== data/ ===== */
-const USERS={sarah:{name:'سارة',other:'ahmed'},ahmed:{name:'أحمد',other:'sarah'}};
+const _U={};const USERS=new Proxy(_U,{get:(t,k)=>t[k]||{name:'الشريك',other:null}});
 const BUDGET={monthly:1500,spent:720,school:500};
 const CATALOG={'حليب':400,'خبز':300,'حفاضات':2200,'منظف الغسيل':1800,'بيض':500,'قهوة':900};
 const PRIVATE={sarah:['سارة تحب الزهور 🌸'],ahmed:['أحمد يدّخر لمفاجأة 🎁']};
@@ -121,25 +122,23 @@ const NI={home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6
 const ring=p=>{const q=Math.max(0,Math.min(1,p)),d=(q*251.3).toFixed(1);return`<svg class="ring" viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec6a52"/><stop offset="1" stop-color="#ff9a78"/></linearGradient></defs><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="50" cy="50" r="40" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${d} 251.3" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">${Math.round(q*100)}%</text></svg>`};
 const money=n=>(n<0?'-':'')+Math.abs(Math.round(n)).toLocaleString('en-US')+' دج';
 /* ===== state ===== */
-const S={user:'sarah',tab:'home',draft:[],req:null,review:null,msgs:[{r:'a',t:"مرحبًا! أنا TogetherAI. اسألني عن الميزانية أو قائمة التسوّق أو أفكار الهدايا."}],busy:false,push:false,spentExtra:0,aiMode:'shared',dis:{},showP:false,sim:null,wt:'',addG:false,
- facts:{sarah:{flowers:true},ahmed:{}},
- log:['💰 تحديث الميزانية — أُضيفت ميزانية هذا الشهر','🎯 تقدّم هدف الرحلة — 60%'],
- pm:{sarah:[{r:'u',t:'أنا أحب الزهور وأريد أن أفاجئ أحمد.'},{r:'a',t:'فكرة جميلة! هذه المحادثة خاصة بك، ويمكنني اقتراح أفكار لاحقًا دون كشف ما قلتِه هنا.'}],ahmed:[{r:'a',t:'مرحبًا أحمد! هذه المحادثة خاصة بك ولن تُعرض لشريكتك.'}]},
+const S={user:null,tab:'home',draft:[],req:null,review:null,msgs:[{r:'a',t:"مرحبًا! أنا TogetherAI. اسألني عن الميزانية أو قائمة التسوّق أو أفكار الهدايا."}],busy:false,push:false,spentExtra:0,aiMode:'shared',dis:{},showP:false,sim:null,wt:'',addG:false,
+ facts:{},
+ log:['🏡 مرحبًا بك في TogetherAI'],
+ pm:{},
  goals:[{i:'✈️',n:'رحلة',target:3000,cur:1800,mo:600,dl:'ديسمبر 2026'},{i:'🏠',n:'صندوق الطوارئ',target:5000,cur:2400,mo:400,dl:'أبريل 2027'}]};
 const ST=['تمت الموافقة','قيد التحضير','جاهز','تم التسليم'];
 S.bt='ov';S.ob=0;S.dstep=1;S.step=0;S.wk='buy';
-let F={done:false,mode:'detail',approx:0,skipInc:false,cats:['السكن','الطعام','الفواتير'],coach:true,fv:{},adults:2,housing:'إيجار',kids:[{n:'',age:4},{n:'',age:8}],
- income:[{n:'دخل الشريك الأول (أحمد)',amt:120000,vis:'ai',owner:'ahmed'},{n:'دخل الشريك الثاني (سارة)',amt:60000,vis:'shared',owner:'sarah'},{n:'دخل آخر',amt:20000,vis:'shared',owner:'sarah'}],
- exp:[['الإيجار',30000,'ثابت'],['الكهرباء والغاز',6000,'ثابت'],['الإنترنت والهاتف',4000,'ثابت'],['المدرسة',15000,'ثابت'],['النقل',10000,'متغير'],['الغذاء',35000,'متغير'],['التسوق',15000,'متغير'],['المطاعم',8000,'متغير'],['الملابس',10000,'متغير']].map(([n,amt,cat])=>({n,amt,cat,rec:true,vis:'shared',owner:'sarah'})),
- save:{cur:480000,mo:20000},
- goals:[{i:'✈️',n:'رحلة',target:300000,cur:180000,mo:8000},{i:'🚗',n:'سيارة جديدة',target:2500000,cur:400000,mo:6000},{i:'🛟',n:'صندوق الطوارئ',target:500000,cur:240000,mo:6000}],
- bills:[{n:'الكهرباء والغاز',amt:6000,day:10,rec:'شهري',cat:'فواتير'},{n:'الإنترنت والهاتف',amt:4000,day:12,rec:'شهري',cat:'فواتير'},{n:'المدرسة',amt:15000,day:14,rec:'شهري',cat:'مدرسة'},{n:'الإيجار',amt:30000,day:5,rec:'شهري',cat:'إيجار'}]};
-try{const d=JSON.parse(localStorage.getItem('tg2'));if(d&&d.F){F=d.F;S.req=d.req||null;S.spentExtra=d.x||0;S.log=d.log||S.log;S.pm=d.pm||S.pm}}catch(e){}
+function newF(){return{done:false,mode:'detail',approx:0,skipInc:false,cats:['السكن','الطعام','الفواتير'],coach:true,fv:{},adults:2,housing:'إيجار',kids:[],income:[],exp:[],save:{cur:0,mo:0},goals:[],bills:[]}}
+let F=newF();
 function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function normB(b){if(!b.date){const t=new Date(),t0=new Date(t.getFullYear(),t.getMonth(),t.getDate());let d=new Date(t.getFullYear(),t.getMonth(),b.day||1);if(d<t0)d=new Date(t.getFullYear(),t.getMonth()+1,b.day||1);b.date=iso(d)}
  if(!['شهري','أسبوعي','مرة واحدة'].includes(b.rec))b.rec='شهري';if(b.link===undefined)b.link=b.rec!=='مرة واحدة'&&F.exp.some(x=>x.n===b.n)}
-F.bills.forEach(normB);F.adults=2;F.kids.forEach(k=>k.age=Math.min(17,Math.max(0,+k.age||0)));if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال');
-function save(){try{localStorage.setItem('tg2',JSON.stringify({F,req:S.req,x:S.spentExtra,log:S.log,pm:S.pm}))}catch(e){}}
+function afterLoad(){F.bills.forEach(normB);F.adults=2;F.kids.forEach(k=>k.age=Math.min(17,Math.max(0,+k.age||0)));if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال')}
+const LSK=()=>S.me?'tg3:'+S.me.id:null;
+function save(){const k=LSK();if(!k)return;try{localStorage.setItem(k,JSON.stringify({F,req:S.req,x:S.spentExtra,log:S.log,pm:S.pm,facts:S.facts}))}catch(e){}}
+function loadLocal(){const k=LSK();F=newF();S.req=null;S.spentExtra=0;S.pm={};S.facts={};S.log=['🏡 مرحبًا بك في TogetherAI'];if(k){try{const d=JSON.parse(localStorage.getItem(k));if(d&&d.F){F=d.F;S.req=d.req||null;S.spentExtra=d.x||0;S.log=d.log||S.log;S.pm=d.pm||{};S.facts=d.facts||{}}}catch(e){}}afterLoad()}
+const pmOf=()=>S.pm[S.user]||(S.pm[S.user]=[{r:'a',t:'مرحبًا! هذه المحادثة خاصة بك ولن تُعرض لشريكك.'}]);const fct=u=>S.facts[u]||(S.facts[u]={});
 /* ===== services/ finance + aiService ===== */
 const used=a=>a.filter(x=>x.vis!=='me'),sum=a=>a.reduce((t,x)=>t+(+x.amt||0),0);
 function calc(){const income=F.mode==='approx'&&F.approx>0?F.approx:sum(used(F.income)),ex=used(F.exp),fixed=sum(ex.filter(x=>x.cat==='ثابت')),varr=sum(ex.filter(x=>x.cat!=='ثابت')),exp=fixed+varr,save=+F.save.mo||0,flex=income-exp-save-S.spentExtra-oneOff(),press=income?(exp+save+S.spentExtra+oneOff())/income:1;
@@ -196,7 +195,7 @@ const aiService={async reply(q,ctx){await new Promise(r=>setTimeout(r,700));cons
  if(/(سارة|أحمد|شريكي|شريكتي|sarah|ahmed|partner)/.test(t)&&/(خاص|سر|private|secret|قال لك|قالت لك|أخبرت)/.test(t)&&/(اعرض|أظهر|أرني|show|ماذا|كل ما|everything)/.test(t))return"لا أستطيع عرض المعلومات الخاصة بشريكك. يمكنني مساعدتك في الأمور التي تم الاتفاق على مشاركتها.";
  if(/(دخل|راتب|income|salary)/.test(t)&&/(شريكي|شريكتي|أحمد|سارة|partner|ahmed|sarah)/.test(t)&&!/(انخفض|ينخفض|انخفاض|ينقص|نقص|ترتفع)/.test(t))return`لا أستطيع كشف دخل شريكك أو أي بيانات مالية خاصة به. بناءً على المعلومات المالية المصرّح بها للأسرة، الوضع الحالي: ${c.st[0]} ${c.st[1]}.`;
  if(/(راقب|تجسس|تتبع|monitor|spy|track)/.test(t))return"لا أستطيع مساعدتك في مراقبة شريكك أو تتبّع نشاطه الخاص. أساعدكما فقط في الأمور المشتركة المتفق عليها.";
- if(ctx.priv&&/(أحب|احب|أريد|اريد|love|want)/.test(t)){if(/زهور|ورد|flower/.test(t))S.facts[ctx.user].flowers=true;return"تم. هذه المحادثة خاصة بك ولن تُعرض لشريكك. سأستخدم ما يفيدك في اقتراحاتي دون أن أنسبه إليك أمام أحد."}
+ if(ctx.priv&&/(أحب|احب|أريد|اريد|love|want)/.test(t)){if(/زهور|ورد|flower/.test(t))fct(ctx.user).flowers=true;return"تم. هذه المحادثة خاصة بك ولن تُعرض لشريكك. سأستخدم ما يفيدك في اقتراحاتي دون أن أنسبه إليك أمام أحد."}
  if(a&&/(دخل|راتب)/.test(t)&&/(انخفض|ينخفض|انخفاض|ينقص|نقص)/.test(t)){const r=simulate('inc',a);return`لو انخفض دخل أحد الشريكين بمقدار ${money(a)}، تصبح الميزانية المرنة ${money(r.nf)}${r.short?` ويُسحب ${money(r.short)} من الادخار الشهري`:''}. ${r.goalTxt}.`}
  if(a&&/(فاتورة|كهرباء|غاز|إيجار)/.test(t)&&/(ترتفع|ارتفاع|زيادة|تزيد)/.test(t)){const r=simulate('bill',a);return`إذا ارتفعت الفاتورة بمقدار ${money(a)} شهريًا، تنخفض الميزانية المرنة إلى ${money(r.nf)}. ${r.goalTxt}.`}
  if(a&&/(afford|buy|spend|نستطيع|نقدر|يمكننا|شراء|نشتري|ملابس|هاتف|أقدر)/.test(t)){const r=simulate('buy',a),up=upBills(),us=sum(up);
@@ -207,7 +206,7 @@ const aiService={async reply(q,ctx){await new Promise(r=>setTimeout(r,700));cons
  if(/need|list|shopping|order|نحتاج|نشتري|قائمة|تسوق|طلب/.test(t)){const r=ctx.req;if(!r)return"لا يوجد طلب منزلي نشط حاليًا.";
   const names=r.items.map(i=>i.n).join('، ');
   return r.status==='waiting'?`يوجد طلب معلّق (${names}) بانتظار الموافقة.`:r.status==='rejected'?'تم رفض الطلب الأخير.':`لديك طلب منزلي موافق عليه يحتوي على: ${names}. حالة الطلب: ${ST[r.stage]}.`}
- if(/gift|surprise|idea|هدية|مفاجأة|فكرة|اقتراح/.test(t)){const f=S.facts[ctx.user==='ahmed'?'sarah':'ahmed'];return ctx.priv&&ctx.user==='ahmed'&&f.flowers?`قد تكون الزهور خيارًا جميلًا 🌸 وتناسب ميزانيتكما (المتاح ${money(c.flex)}).`:`أستطيع اقتراح عشاء هادئ أو هدية صغيرة تناسب ميزانيتكما (المتاح ${money(c.flex)}).`}
+ if(/gift|surprise|idea|هدية|مفاجأة|فكرة|اقتراح/.test(t)){const f=fct(USERS[ctx.user].other);return ctx.priv&&f.flowers?`قد تكون الزهور خيارًا جميلًا 🌸 وتناسب ميزانيتكما (المتاح ${money(c.flex)}).`:`أستطيع اقتراح عشاء هادئ أو هدية صغيرة تناسب ميزانيتكما (المتاح ${money(c.flex)}).`}
  if(/budget|left|remain|ميزانية|المتبقي|تبقى|متبقي|وضع/.test(t)){const up=upBills();return`${c.st[0]} ${c.st[1]}: الدخل ${money(c.income)}، المصاريف ${money(c.exp)}، الادخار ${money(c.save)}، والمتبقي للمصاريف المرنة ${money(c.flex)}.${up.length?` وهناك ${up.length} فواتير خلال أسبوع.`:''} ${kidsNote()}`}
  return"يمكنني مساعدتك في أسئلة الميزانية، والمشتريات، والفواتير القادمة، والأهداف. جرّب: «هل يمكننا شراء هاتف بـ 35,000 دج؟»"}};
 /* ===== components/ ===== */
@@ -241,6 +240,13 @@ function sheetHTML(){const sh=S.sheet;if(!sh)return'';const b=F.bills[sh.k],d=sh
  <div class="item"><span>التكرار</span><b>${b.rec}</b></div>${b.cat?`<div class="item"><span>التصنيف</span><b>${b.cat}</b></div>`:''}${b.lastPaid?`<div class="item"><span>آخر دفعة</span><b>${fmtDate(b.lastPaid)}</b></div>`:''}
  ${b.paid?'':'<button class="btn ok" data-a="bpay">تم الدفع ✓</button>'}<button class="chip" style="margin-top:12px;color:var(--bad)" data-a="bdel0">حذف الفاتورة</button>`)+`</div></div>`}
 const screens={
+account(){const m=S.me||{},h=S.hh;
+ let t=`<h2>حسابي</h2><p class="sub" dir="ltr" style="text-align:start">${escH(m.email||'')}</p><div class="card"><b>👤 ${escH(m.name||'')}</b></div>`;
+ if(h){t+=`<div class="card"><b>🏡 ${escH(h.name)}</b>${h.members.map(x=>`<div class="item"><span>${escH(x.name)}${x.id===m.id?' <small class="sub">(أنت)</small>':''}</span><span class="badge">${x.role==='owner'?'مالك':'عضو'}</span></div>`).join('')}<button class="chip" style="margin-top:10px" data-a="refresh">تحديث</button></div>`;
+  if(h.role==='owner'&&h.members.length<2)t+=`<div class="card"><b>👫 دعوة الشريك</b>${S.inv?`<div class="code">${fmtCode(S.inv.code)}</div><p class="sub" style="font-size:12px">يُستخدم مرة واحدة وينتهي خلال 48 ساعة. إنشاء رمز جديد يُلغي السابق.</p><button class="btn alt" data-a="copyinv">نسخ الرمز</button>`:''}${S.err?`<p class="err">${escH(S.err)}</p>`:''}<button class="btn" data-a="mkinv">${S.inv?'رمز جديد':'إنشاء رمز دعوة'}</button></div>`;
+  else if(h.members.length>=2)t+='<div class="card"><p class="sub" style="margin:0">✅ الأسرة مكتملة (شريكان).</p></div>'}
+ return t+'<button class="btn bad" style="margin-top:6px" data-a="logout">تسجيل الخروج</button>'},
+
 home(){const u=USERS[S.user],c=calc(),h=new Date().getHours(),g=h<12?'صباح الخير':'مساء الخير',r=S.req,w=r&&r.status==='waiting',up=upBills(),rt=r?total(r.items):0;
  const rec=w&&r.from!==S.user?`لديك طلب منزلي بانتظار موافقتك بقيمة ${money(rt)} (${r.ai.pct}% من الميزانية المرنة).`:c.flex<0?`الميزانية المرنة سالبة بمقدار ${money(-c.flex)}. أقترح مراجعة المصاريف المتغيرة.`:up.length?`لديكم ${up.length} فواتير خلال الأسبوع القادم بقيمة ${money(sum(up))}. أقترح تأجيل المشتريات غير الضرورية حتى سدادها.`:`الميزانية المرنة ${money(c.flex)}. يمكنكم تخصيص جزء منها لهدف ${G0().n}.`;
  return`<h2>${g}، ${u.name}</h2><p class="sub">نظرة سريعة على أسرتك</p><div class="quick"><button data-a="go" data-t="shop" data-c="1"><i>🛒</i>طلب جديد</button><button data-a="go" data-t="budget" data-b="wi"><i>🔮</i>ماذا لو؟</button><button data-a="go" data-t="ai"><i>✨</i>اسأل TogetherAI</button></div>
@@ -280,7 +286,7 @@ budget(){const c=calc(),sm=S.sim,pl=S.plan?plan():null,up=F.bills.filter(b=>!b.p
  <div class="in2"><input id="wa" inputmode="numeric" placeholder="المبلغ" value="${S.wt?num(String(S.wt)).toLocaleString('en-US'):''}" style="font-size:22px!important;font-weight:700"><b>دج</b></div>
  <div class="chips" style="margin:10px 0 0">${[5000,20000,45000,100000].map(v=>`<button class="chip" data-a="wq" data-v="${v}">${money(v)}</button>`).join('')}</div>
  <button class="btn" data-a="wcalc">احسب الأثر</button>${sim}</div>`:''}${S.bt==='bl'?billsView():''}${S.bt==='dt'?screens.details():''}`},
-ai(){const pr=S.aiMode==='private',ms=pr?S.pm[S.user]:S.msgs,pn=USERS[USERS[S.user].other].name;
+ai(){const pr=S.aiMode==='private',ms=pr?pmOf():S.msgs,pn=USERS[USERS[S.user].other].name;
  const qs=pr?[`ما الهدية التي قد تعجب ${pn}؟`,'اعرض لي كل ما قاله شريكي لك بشكل خاص']:['هل يمكننا شراء هاتف بـ 35 ألف دج؟','فاتورة الكهرباء هذا الشهر كانت 7000 دج','صرفنا 20 ألف على ملابس الأطفال','ما الفواتير القادمة؟'];
  return`<h2>TogetherAI</h2><div class="sw" style="margin:8px 0 12px"><button style="flex:1" class="${pr?'':'on'}" data-a="mode" data-m="shared">❤️ مشترك</button><button style="flex:1" class="${pr?'on':''}" data-a="mode" data-m="private">🔒 المساعد الخاص</button></div>
  ${pr?'<div class="card" style="background:var(--soft);padding:12px;font-size:14px">🔒 هذه المحادثة خاصة بك. لن يتم عرضها لشريكك.</div>':'<p class="sub">محادثة مشتركة تعتمد على بيانات الأسرة المصرّح بها</p>'}
@@ -318,16 +324,16 @@ function composer(){const d=S.draft,t=total(d);
  :`<button class="btn" data-a="submit" ${d.length?'':'disabled'}>إرسال إلى ${USERS[USERS[S.user].other].name}</button>`}</div>`}
 /* ===== app shell ===== */
 function toast(t){try{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}catch(e){}}
-function render(){save();if(!F.done)S.tab='setup';const app=document.getElementById('app'),u=USERS[S.user];
+function render(){if(S.gate)return renderGate();save();if(!F.done&&S.tab!=='account')S.tab='setup';const app=document.getElementById('app'),u=USERS[S.user];
  const pend=S.req&&S.req.status==='waiting'&&S.req.from!==S.user;
- app.innerHTML=`<div class="top"><span class="logo">TogetherAI ❤️ <button class="chip" data-a="tab" data-t="setup" style="margin-inline-start:4px">⚙️</button></span><div class="sw">${Object.keys(USERS).map(k=>`<button class="${S.user===k?'on':''}" data-a="user" data-u="${k}"><i class="av">${USERS[k].name[0]}</i>${USERS[k].name}</button>`).join('')}</div></div>
+ app.innerHTML=`<div class="top"><span class="logo">TogetherAI ❤️ <button class="chip" data-a="tab" data-t="setup" style="margin-inline-start:4px">⚙️</button></span><div class="sw"><button class="on" data-a="tab" data-t="account"><i class="av">${S.me?escH([...S.me.name][0]||'?'):'?'}</i>${u.name}</button></div></div>
  ${S.push&&pend?`<div class="push"><div class="row"><small>🔔 TogetherAI · الآن</small></div><b>طلب منزلي جديد</b><div style="font-size:14px;margin:2px 0 8px">وصلك طلب تسوّق من ${USERS[S.req.from].name}.<br>${S.req.items.map(i=>i.n).join('<br>')}<br><b>الإجمالي التقديري: ${money(total(S.req.items))}</b></div><div class="btns"><button class="btn ok" data-a="approve">موافقة</button><button class="btn bad" data-a="reject">رفض</button><button class="btn alt" style="background:#fff2" data-a="tab" data-t="shop">فتح</button></div></div>`:''}
  ${(()=>{try{return screens[S.tab]()}catch(err){return'<div class="card"><b>⚠️ تعذّر عرض هذه الشاشة</b><p class="sub">'+err.message+'</p><button class="btn" data-a="reset">استعادة البيانات التجريبية</button></div>'}})()}
  ${!F.done?'':`<div class="nav">${[['home','🏠','الرئيسية'],['shop','🛒','التسوّق'],['goals','🎯','الأهداف'],['budget','💰','الميزانية'],['ai','✨','المساعد']].map(([k,i,l])=>`<button class="${S.tab===k?'on':''}" data-a="tab" data-t="${k}"><span class="ni">${NI[k]}</span>${l}${k==='shop'&&pend?'<i class="dotn"></i>':''}</button>`).join('')}</div>`}`;
  const m=app.querySelector('.msgs');if(S.tab==='ai'&&m)m.lastElementChild?.scrollIntoView({block:'end'})}
 function submit(){const t=total(S.draft),a=analyze(t);if(a.ok)sendReq(a);else{S.review=a;render()}}
 function sendReq(a){a=a||analyze(total(S.draft));S.req={from:S.user,items:S.draft,status:'waiting',stage:0,ai:a,time:new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})};S.log.unshift('🛒 طلب جديد من '+USERS[S.user].name);S.draft=[];S.review=null;S.composing=false;render();toast('✅ تم إرسال الطلب بنجاح')}
-async function ask(q){q=q.trim();if(!q||S.busy)return;const pr=S.aiMode==='private',L=pr?S.pm[S.user]:S.msgs;L.push({r:'u',t:q.replace(/</g,'&lt;')});const pp=learn(q);if(pp){S.pend=pp;L.push({r:'a',t:pp.t,btns:1});render();return}S.busy=true;render();
+async function ask(q){q=q.trim();if(!q||S.busy)return;const pr=S.aiMode==='private',L=pr?pmOf():S.msgs;L.push({r:'u',t:q.replace(/</g,'&lt;')});const pp=learn(q);if(pp){S.pend=pp;L.push({r:'a',t:pp.t,btns:1});render();return}S.busy=true;render();
  const t=await aiService.reply(q,{req:S.req,user:S.user,priv:pr});L.push({r:'a',t});S.busy=false;render()}
 const setP=(p,v)=>{const k=p.split('.');let o=F;k.slice(0,-1).forEach(x=>o=o[x]);o[k[k.length-1]]=v};
 const cap=()=>{const g=id=>document.getElementById(id);if(S.sheet&&S.sheet.d&&g('sn'))S.sheet.d={...S.sheet.d,n:g('sn').value,amt:g('sa').value,date:g('sd').value}};
@@ -348,13 +354,13 @@ const A={badd0(){S.sheet={mode:'add',d:{n:'',amt:'',date:iso(new Date()),rec:'ش
  coach(){F.coach=false;S.tab='budget';S.bt='dt';render()},coachno(){F.coach=false;render()},
  fv(e){F.fv=F.fv||{};F.fv[S.user]=e.dataset.v;F.income.forEach(x=>{if(x.owner===S.user)x.vis=e.dataset.v});render();toast('🔒 تم تحديث خصوصية معلوماتك المالية')},
  esug(e){F.exp.push({n:e.dataset.n,amt:0,cat:e.dataset.c,rec:true,vis:'shared',owner:S.user});render()},dst(e){S.dstep=+e.dataset.v;render()},mode2(e){F.mode=e.dataset.v;render()},
- lyes(){const p=S.pend;if(!p)return;S.pend=null;[...S.msgs,...S.pm.sarah,...S.pm.ahmed].forEach(m=>delete m.btns);p.apply();(S.aiMode==='private'?S.pm[S.user]:S.msgs).push({r:'a',t:'تم ✅ '+p.ok});render();toast('✅ تم الحفظ')},
- lno(){S.pend=null;[...S.msgs,...S.pm.sarah,...S.pm.ahmed].forEach(m=>delete m.btns);(S.aiMode==='private'?S.pm[S.user]:S.msgs).push({r:'a',t:'حسنًا، لن أحفظ ذلك.'});render()},go(e){S.sheet=null;S.tab=e.dataset.t;if(e.dataset.b)S.bt=e.dataset.b;if(e.dataset.c)S.composing=true;if(e.dataset.g)S.addG=true;S.push=false;render()},bt(e){S.sheet=null;S.bt=e.dataset.v;render()},adl(e){F.adults=+e.dataset.v;render()},kadd(){if(F.kids.length>=8)return;F.kids.push({n:'',age:F.kids.length?F.kids[F.kids.length-1].age:5});if(F.kids.length===1&&!F.cats.includes('الأطفال'))F.cats.push('الأطفال');render()},krm(e){F.kids.splice(+e.dataset.k,1);render()},house(e){F.housing=e.dataset.v;render()},
+ lyes(){const p=S.pend;if(!p)return;S.pend=null;[...S.msgs,...Object.values(S.pm).flat()].forEach(m=>delete m.btns);p.apply();(S.aiMode==='private'?pmOf():S.msgs).push({r:'a',t:'تم ✅ '+p.ok});render();toast('✅ تم الحفظ')},
+ lno(){S.pend=null;[...S.msgs,...Object.values(S.pm).flat()].forEach(m=>delete m.btns);(S.aiMode==='private'?pmOf():S.msgs).push({r:'a',t:'حسنًا، لن أحفظ ذلك.'});render()},go(e){S.sheet=null;S.tab=e.dataset.t;if(e.dataset.b)S.bt=e.dataset.b;if(e.dataset.c)S.composing=true;if(e.dataset.g)S.addG=true;S.push=false;render()},bt(e){S.sheet=null;S.bt=e.dataset.v;render()},adl(e){F.adults=+e.dataset.v;render()},kadd(){if(F.kids.length>=8)return;F.kids.push({n:'',age:F.kids.length?F.kids[F.kids.length-1].age:5});if(F.kids.length===1&&!F.cats.includes('الأطفال'))F.cats.push('الأطفال');render()},krm(e){F.kids.splice(+e.dataset.k,1);render()},house(e){F.housing=e.dataset.v;render()},
  iadd(){F.income.push({n:'دخل غير منتظم',amt:0,vis:curVis(),owner:S.user});render()},idel(e){F.income.splice(+e.dataset.k,1);render()},
  eadd(e){F.exp.push({n:'مصروف جديد',amt:0,cat:e.dataset.c,rec:true,vis:'shared',owner:S.user});render()},edel(e){F.exp.splice(+e.dataset.k,1);render()},erec(e){const x=F.exp[+e.dataset.k];x.rec=!x.rec;render()},
  gnew(){F.goals.push({i:'🎯',n:'هدف جديد',target:100000,cur:0,mo:0});render()},gdel(e){F.goals.splice(+e.dataset.k,1);render()},
  snext(){S.step++;render()},sprev(){S.step--;render()},sdone(){F.done=true;S.step=0;S.tab='home';S.log.unshift('🏡 اكتمل إعداد الأسرة');render();toast('🏡 تم حفظ إعداد الأسرة')},
- reset(){try{localStorage.removeItem('tg2')}catch(e){}location.reload()},plan(){S.plan=!S.plan;render()},wk(e){S.wk=e.dataset.k;if(S.sim)S.sim.k=S.wk;render()},wq(e){S.wt=+e.dataset.v;S.sim={k:S.wk,a:+e.dataset.v};render()},
+ reset(){try{const k=LSK();if(k)localStorage.removeItem(k)}catch(e){}location.reload()},plan(){S.plan=!S.plan;render()},wk(e){S.wk=e.dataset.k;if(S.sim)S.sim.k=S.wk;render()},wq(e){S.wt=+e.dataset.v;S.sim={k:S.wk,a:+e.dataset.v};render()},
  wcalc(){const a=num(document.getElementById('wa').value);if(a){S.wt=a;S.sim={k:S.wk,a};render()}},wclose(){S.sim=null;render()},
  wapply(){S.spentExtra+=S.sim.a;S.log.unshift('💰 تم تسجيل مصروف بقيمة '+money(S.sim.a));S.sim=null;render();toast('💰 تم تسجيل المصروف')},
  badd(){const n=document.getElementById('bn').value.trim(),a=num(document.getElementById('ba').value),d=Math.min(28,num(document.getElementById('bd').value)||1);if(n&&a){F.bills.push({n,amt:a,day:d,rec:document.getElementById('br').value,cat:document.getElementById('bc').value});S.log.unshift('🧾 فاتورة جديدة: '+n);render();toast('🧾 تمت إضافة الفاتورة')}},rv(){S.showP=!S.showP;render()},dis(){S.dis[S.user]=true;render()},mode(e){S.aiMode=e.dataset.m;render()},ag(){S.addG=true;render()},
@@ -375,5 +381,106 @@ const A={badd0(){S.sheet={mode:'add',d:{n:'',amt:'',date:iso(new Date()),rec:'ش
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el)A[el.dataset.a](el)});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q')ask(e.target.value);if(e.key==='Enter'&&e.target.id==='wa')A.wcalc()});
 document.addEventListener('change',e=>{const p=e.target.dataset&&e.target.dataset.f;if(!p)return;setP(p,e.target.dataset.n?num(e.target.value):e.target.value);fix(p);render()});
-render();
+/* ===== auth & household (Supabase) -- public URL + publishable key ONLY; no secret keys ever ===== */
+const LIBV=['2.112.3','2.110.9'];                     // exact pinned versions (fallback second)
+function escH(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const fmtCode=c=>c?String(c).replace(/(.{4})(?=.)/g,'$1-'):'—';
+const val=id=>{const e=document.getElementById(id);return e?e.value:''};
+let sb=null;
+function msgOf(e){const c=String((e&&e.code)||''),m=String((e&&e.message)||''),t=c+' '+m;
+ if(/invalid_credentials|Invalid login credentials/i.test(t))return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+ if(/email_not_confirmed|not confirmed/i.test(t))return 'يجب تأكيد بريدك الإلكتروني أولًا. افتح الرسالة التي أُرسلت إليك.';
+ if(/user_already_exists|already registered|already been registered/i.test(t))return 'هذا البريد الإلكتروني مسجَّل بالفعل. جرّب تسجيل الدخول.';
+ if(/weak_password|Password should/i.test(t))return 'كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.';
+ if(/over_email_send_rate_limit|email rate limit/i.test(t))return 'تم تجاوز الحد المسموح لرسائل البريد حاليًا. حاول لاحقًا.';
+ if(/email_address_not_authorized/i.test(t))return 'لا يمكن إرسال رسالة التأكيد إلى هذا البريد بإعدادات المشروع الحالية.';
+ if(/signup_disabled|signups not allowed/i.test(t))return 'التسجيل غير متاح حاليًا.';
+ if(/already_in_household/.test(t))return 'أنت عضو في أسرة بالفعل.';
+ if(/household_full/.test(t))return 'اكتمل عدد أعضاء الأسرة (شريكان).';
+ if(/forbidden/.test(t))return 'هذا الإجراء متاح لمالك الأسرة فقط.';
+ if(/violates check constraint|char_length/i.test(t))return 'القيمة المدخلة غير صالحة (الطول غير مقبول).';
+ if(/Failed to fetch|NetworkError|network|fetch/i.test(t))return 'تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مجددًا.';
+ return 'حدث خطأ غير متوقع. حاول مرة أخرى.'}
+const JOIN_ERR={invalid_or_expired:'الرمز غير صحيح أو منتهي الصلاحية أو سبق استخدامه.',rate_limited:'محاولات خاطئة كثيرة. انتظر 15 دقيقة ثم حاول مجددًا.',already_member:'أنت عضو في أسرة بالفعل.',household_full:'اكتمل عدد أعضاء هذه الأسرة.'};
+function loadLib(){if(window.supabase&&window.supabase.createClient)return Promise.resolve(true);
+ const one=v=>new Promise(r=>{let done=false;const fin=x=>{if(!done){done=true;r(x)}};const el=document.createElement('script');
+  el.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@'+v+'/dist/umd/supabase.js';el.onload=()=>fin(true);el.onerror=()=>fin(false);
+  setTimeout(()=>fin(false),12000);document.head.appendChild(el)});
+ return (async()=>{for(const v of LIBV){if(await one(v)&&window.supabase&&window.supabase.createClient)return true}return false})()}
+function setUsers(){Object.keys(_U).forEach(k=>delete _U[k]);if(!S.me)return;const p=S.hh&&S.hh.members.find(x=>x.id!==S.me.id);
+ _U[S.me.id]={name:escH(S.me.name),other:p?p.id:null};if(p)_U[p.id]={name:escH(p.name),other:S.me.id}}
+async function ensureProfile(u){let r=await sb.from('profiles').select('id,display_name,locale').eq('id',u.id).maybeSingle();if(r.error)throw r.error;let d=r.data;
+ if(!d){const nm=String((u.user_metadata&&u.user_metadata.display_name)||(u.email||'').split('@')[0]||'مستخدم').trim().slice(0,40)||'مستخدم';
+  const i=await sb.from('profiles').insert({id:u.id,display_name:nm,locale:'ar'}).select('id,display_name,locale').single();if(i.error)throw i.error;d=i.data}
+ S.me={id:u.id,email:u.email||'',name:d.display_name}}
+async function loadHousehold(){const m=await sb.from('household_members').select('household_id,role').eq('user_id',S.me.id).maybeSingle();if(m.error)throw m.error;
+ if(!m.data){S.hh=null;setUsers();return}
+ const hid=m.data.household_id,[h,ms]=await Promise.all([sb.from('households').select('id,name,currency').eq('id',hid).single(),sb.from('household_members').select('user_id,role,joined_at').eq('household_id',hid)]);
+ if(h.error)throw h.error;if(ms.error)throw ms.error;
+ const ps=await sb.from('profiles').select('id,display_name').in('id',ms.data.map(x=>x.user_id));if(ps.error)throw ps.error;
+ S.hh={id:h.data.id,name:h.data.name,role:m.data.role,members:ms.data.map(x=>({id:x.user_id,role:x.role,name:((ps.data||[]).find(p=>p.id===x.user_id)||{}).display_name||'عضو'}))};setUsers()}
+async function onSession(sess){const u=sess&&sess.user;if(!u)return;if(S.sessUid===u.id&&!S.gate)return;S.sessUid=u.id;S.gate='loading';S.err='';render();
+ try{await ensureProfile(u);await loadHousehold();S.user=u.id;loadLocal();S.gate=S.hh?null:'household';S.tab='home'}catch(e){S.err=msgOf(e);S.gate='error'}render()}
+function onSignedOut(){S.sessUid=null;S.me=null;S.hh=null;S.inv=null;S.user=null;setUsers();F=newF();S.req=null;S.spentExtra=0;S.pm={};S.facts={};S.draft=[];S.log=['🏡 مرحبًا بك في TogetherAI'];S.tab='home';S.mode='login';S.err='';S.busy2=false;S.gate='auth';render()}
+async function boot(){S.gate='loading';render();const c=window.TG_CONFIG;
+ if(!c||!c.url||!c.key||/YOUR-/.test(String(c.url)+String(c.key))){S.gate='config';return render()}
+ if(!(await loadLib())){S.gate='lib';return render()}
+ try{sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  sb.auth.onAuthStateChange((ev,sess)=>{if(ev==='SIGNED_OUT')setTimeout(onSignedOut,0);else if(ev==='SIGNED_IN'&&sess&&sess.user&&S.sessUid!==sess.user.id)setTimeout(()=>onSession(sess),0)});
+  const r=await sb.auth.getSession();if(r.error)throw r.error;
+  if(r.data&&r.data.session)await onSession(r.data.session);else{S.mode=S.mode||'login';S.gate='auth';render()}}
+ catch(e){S.err=msgOf(e);S.gate='error';render()}}
+function renderGate(){const app=document.getElementById('app'),g=S.gate,f=S.f||{},busy=S.busy2?'disabled':'';
+ const head='<div style="text-align:center;padding-top:6vh"><div class="logo" style="justify-content:center;font-size:28px">TogetherAI ❤️</div><p class="sub" style="margin:6px 0 20px">مساعد الأسرة الذكي لشريكين</p></div>';
+ const err=S.err?`<p class="err">${escH(S.err)}</p>`:'';let b='';
+ if(g==='loading')b='<div class="empty">جارٍ التحميل…</div>';
+ else if(g==='config')b='<div class="card"><b>⚙️ إعداد الاتصال غير مكتمل</b><p class="sub">ملف <b>config.js</b> لا يحتوي بعد على عنوان مشروع Supabase والمفتاح العام (publishable). أضفهما ثم أعد تحميل الصفحة.</p></div>';
+ else if(g==='lib')b='<div class="card"><b>⚠️ تعذّر تحميل مكتبة Supabase</b><p class="sub">تحقق من اتصال الإنترنت ثم حاول مجددًا.</p><button class="btn" data-a="retry">إعادة المحاولة</button></div>';
+ else if(g==='error')b=`<div class="card"><b>⚠️ حدث خطأ</b>${err}<div class="btns"><button class="btn" data-a="retry">إعادة المحاولة</button><button class="btn alt" data-a="logout">تسجيل الخروج</button></div></div>`;
+ else if(g==='verify')b=`<div class="card"><b>📧 تحقق من بريدك</b><p class="sub">أرسلنا رابط التأكيد إلى <b dir="ltr">${escH(f.email)}</b>. افتحه ثم عد إلى هنا وسجّل الدخول.</p><button class="btn" data-a="gmode" data-m="login">العودة لتسجيل الدخول</button></div>`;
+ else if(g==='auth'){const su=S.mode==='signup';
+  b=`<div class="sw" style="display:flex;margin-bottom:14px"><button style="flex:1" class="${su?'':'on'}" data-a="gmode" data-m="login">تسجيل الدخول</button><button style="flex:1" class="${su?'on':''}" data-a="gmode" data-m="signup">حساب جديد</button></div>
+  <div class="card" style="display:grid;gap:10px">${su?`<input id="g-name" placeholder="الاسم الذي سيراه شريكك" maxlength="40" autocomplete="name" value="${escH(f.name||'')}">`:''}<input id="g-email" type="email" inputmode="email" dir="ltr" placeholder="البريد الإلكتروني" autocomplete="email" value="${escH(f.email||'')}"><input id="g-pass" type="password" dir="ltr" placeholder="كلمة المرور (8 أحرف على الأقل)" autocomplete="${su?'new-password':'current-password'}">${err}<button class="btn" data-a="${su?'signup':'login'}" ${busy}>${S.busy2?'جارٍ المعالجة…':su?'إنشاء الحساب':'دخول'}</button></div>`}
+ else if(g==='household')b=`<div class="card" style="display:grid;gap:10px"><b>🏡 إنشاء أسرة جديدة</b><p class="sub" style="margin:0">أنشئ أسرتك ثم ادعُ شريكك برمز.</p><input id="g-hname" placeholder="اسم الأسرة" maxlength="60" value="${escH(f.hname||'')}"><button class="btn" data-a="mkhh" ${busy}>إنشاء الأسرة</button></div>
+  <div class="card" style="display:grid;gap:10px"><b>🔑 الانضمام برمز دعوة</b><p class="sub" style="margin:0">أدخل الرمز الذي أرسله لك شريكك.</p><input id="g-code" dir="ltr" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off" value="${escH(f.code||'')}">${err}<button class="btn alt" data-a="join" ${busy}>انضمام</button></div><button class="chip" data-a="logout">تسجيل الخروج</button>`;
+ else if(g==='invite')b=`<div class="card"><b>✅ تم إنشاء الأسرة</b>${S.inv?`<p class="sub">شارك هذا الرمز مع شريكك. يُستخدم مرة واحدة وينتهي خلال 48 ساعة.</p><div class="code">${fmtCode(S.inv.code)}</div><button class="btn alt" data-a="copyinv">نسخ الرمز</button>`:'<p class="sub">تعذّر إنشاء رمز الدعوة الآن؛ يمكنك إنشاؤه لاحقًا من صفحة «حسابي».</p>'}<button class="btn" data-a="toapp">متابعة إلى التطبيق</button></div>`;
+ app.innerHTML=`<div class="gate">${head}${b}</div>`}
+async function guard(fn){try{await fn()}catch(e){S.busy2=false;S.err=msgOf(e);render()}}
+Object.assign(A,{
+ retry(){S.err='';boot()},
+ gmode(e){S.mode=e.dataset.m;S.err='';S.gate='auth';render()},
+ login(){return guard(async()=>{const email=val('g-email').trim(),pass=val('g-pass');S.f={...S.f,email};
+  if(!/^\S+@\S+\.\S+$/.test(email)||!pass){S.err='أدخل البريد الإلكتروني وكلمة المرور.';return render()}
+  S.busy2=true;S.err='';render();const r=await sb.auth.signInWithPassword({email,password:pass});S.busy2=false;
+  if(r.error){S.err=msgOf(r.error);return render()}await onSession(r.data.session)})},
+ signup(){return guard(async()=>{const name=val('g-name').trim(),email=val('g-email').trim(),pass=val('g-pass');S.f={...S.f,name,email};
+  if(!name||name.length>40){S.err='أدخل اسمًا بين 1 و40 حرفًا.';return render()}
+  if(!/^\S+@\S+\.\S+$/.test(email)){S.err='أدخل بريدًا إلكترونيًا صحيحًا.';return render()}
+  if(pass.length<8){S.err='كلمة المرور يجب أن تكون 8 أحرف على الأقل.';return render()}
+  S.busy2=true;S.err='';render();const r=await sb.auth.signUp({email,password:pass,options:{data:{display_name:name}}});S.busy2=false;
+  if(r.error){S.err=msgOf(r.error);return render()}
+  if(r.data&&r.data.user&&Array.isArray(r.data.user.identities)&&r.data.user.identities.length===0){S.err=msgOf({code:'user_already_exists'});return render()}
+  if(!(r.data&&r.data.session)){S.gate='verify';return render()}await onSession(r.data.session)})},
+ logout(){return guard(async()=>{if(sb)await sb.auth.signOut();onSignedOut()})},
+ mkhh(){return guard(async()=>{const name=val('g-hname').trim();S.f={...S.f,hname:name};
+  if(!name||name.length>60){S.err='أدخل اسمًا للأسرة (1 إلى 60 حرفًا).';return render()}
+  S.busy2=true;S.err='';render();const r=await sb.rpc('create_household',{p_name:name});
+  if(r.error){S.busy2=false;S.err=msgOf(r.error);return render()}
+  await loadHousehold();const i=await sb.rpc('create_invite',{p_ttl_hours:48});S.busy2=false;S.inv=i.error?null:i.data;S.gate='invite';render()})},
+ join(){return guard(async()=>{const code=val('g-code');S.f={...S.f,code};
+  if(code.replace(/[^A-Za-z0-9]/g,'').length<8){S.err='أدخل رمز الدعوة كاملًا.';return render()}
+  S.busy2=true;S.err='';render();const r=await sb.rpc('join_household',{p_code:code});S.busy2=false;
+  if(r.error){S.err=msgOf(r.error);return render()}
+  if(!r.data||!r.data.ok){S.err=JOIN_ERR[r.data&&r.data.error]||'تعذّر الانضمام. حاول مرة أخرى.';return render()}
+  await loadHousehold();S.gate=null;S.tab='home';toast('🏡 انضممت إلى الأسرة');render()})},
+ toapp(){S.gate=null;S.tab='home';render()},
+ mkinv(){return guard(async()=>{S.err='';S.busy2=true;render();const r=await sb.rpc('create_invite',{p_ttl_hours:48});S.busy2=false;
+  if(r.error)S.err=msgOf(r.error);else S.inv=r.data;render()})},
+ copyinv(){const c=S.inv&&S.inv.code;if(!c)return;try{navigator.clipboard.writeText(c).then(()=>toast('تم نسخ الرمز ✅'),()=>toast('انسخ الرمز يدويًا'))}catch(e){toast('انسخ الرمز يدويًا')}},
+ refresh(){return guard(async()=>{await loadHousehold();render()})}
+});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!S.gate)return;const id=e.target&&e.target.id;
+ if(id==='g-pass'||id==='g-email'||id==='g-name')A[S.mode==='signup'?'signup':'login']();else if(id==='g-code')A.join();else if(id==='g-hname')A.mkhh()});
+
+boot();
 </script></body></html>
