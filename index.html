@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TogetherAI</title><meta name="theme-color" content="#141110"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf5ef;--card:#fff;--ink:#2b2420;--mute:#8a7d73;--line:#eee3d8;--pri:#e0654f;--pri2:#f59a7c;--ok:#2f9e6b;--warn:#e0a21b;--bad:#d64545;--soft:#fdeee8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1c1816;--card:#292220;--ink:#f5ece4;--mute:#a89a8f;--line:#3a312d;--soft:#3a2622}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg)}
+body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding:12px 16px 110px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.4px}
+.sw{display:flex;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px}
+.sw button{border:0;background:none;color:var(--mute);padding:6px 12px;border-radius:99px;font-weight:600;font-size:13px}
+.sw button.on{background:var(--pri);color:#fff}
+h2{margin:6px 0 2px;font-size:24px;letter-spacing:-.5px}.sub{color:var(--mute);font-size:14px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;animation:up .35s ease both}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;font-size:12px;color:var(--mute)}
+.mini b{display:block;color:var(--ink);font-size:16px;margin-top:4px}.mini span{font-size:20px}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:15px;background:var(--pri);color:#fff;width:100%;margin-top:8px}
+.btn.alt{background:var(--soft);color:var(--pri)}.btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}.btn:disabled{opacity:.4}
+.btns{display:flex;gap:8px}.btns .btn{margin-top:8px}
+.badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;background:var(--soft)}
+.b-w{background:#fff3d1;color:#8a6200}.b-a{background:#d9f3e5;color:#1b6b46}.b-r{background:#fbdada;color:#8f2525}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:0}.x{border:0;background:none;color:var(--bad);font-size:18px}
+input{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:12px;font-size:15px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:6px 12px;font-size:13px}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;display:flex}
+.bar i{display:block;height:100%;transition:width .6s}
+.leg{display:flex;gap:12px;font-size:12px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
+.step{display:flex;gap:12px;align-items:center;padding:6px 0;color:var(--mute);font-weight:600}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;color:#fff}
+.step.done{color:var(--ink)}.step.done .dot{background:var(--ok);border-color:var(--ok)}
+.step.now .dot{border-color:var(--pri);box-shadow:0 0 0 4px var(--soft)}
+.push{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(398px,calc(100% - 24px));z-index:20;background:rgba(40,32,30,.96);color:#fff;border-radius:22px;padding:14px;box-shadow:0 14px 40px rgba(0,0,0,.3);animation:drop .5s cubic-bezier(.2,1.3,.5,1) both}
+@keyframes drop{from{transform:translate(-50%,-140%)}to{transform:translate(-50%,0)}}
+.push small{opacity:.7}.push .btn{padding:9px;font-size:14px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:flex;background:var(--card);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:10}
+.nav button{flex:1;border:0;background:none;color:var(--mute);font-size:11px;font-weight:600;padding:4px;position:relative}
+.nav button span{display:block;font-size:22px}.nav button.on{color:var(--pri)}
+.dotn{position:absolute;top:0;right:28%;width:10px;height:10px;border-radius:50%;background:var(--bad)}
+.msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.m{max-width:85%;padding:10px 14px;border-radius:18px;font-size:14.5px;line-height:1.4;animation:up .25s both}
+.m.u{align-self:flex-end;background:var(--pri);color:#fff;border-bottom-left-radius:6px}
+.m.a{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-right-radius:6px}
+.ask{display:flex;gap:8px}.ask button{width:48px;border:0;border-radius:12px;background:var(--pri);color:#fff;font-size:18px}
+.tag{font-size:12px;border-radius:8px;padding:2px 8px;font-weight:700}
+select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px;font-size:14px}.amt{width:130px;flex:none}.in2{display:flex;gap:8px;align-items:center}
+input,select{font-size:16px!important;min-height:44px}.chip{min-height:38px;padding:8px 14px}.x{padding:8px 12px}button{cursor:pointer}.btn:active,.chip:active,.nav button:active{transform:scale(.96)}.btn,.chip,.nav button{transition:transform .12s}
+.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#2b2420;color:#fff;padding:11px 20px;border-radius:99px;z-index:30;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:up .3s both;white-space:nowrap}
+.bill{display:flex;gap:12px;align-items:center;width:100%;text-align:start;color:var(--ink);padding:14px;margin-bottom:8px;font:inherit}.bill b{display:block;font-size:16px}.bill small{color:var(--mute);font-size:14px}.bill.late small{color:var(--bad);font-weight:700}.bill.today small{color:var(--pri);font-weight:700}.bill.paid{opacity:.55}.bi{font-size:26px}.bill .go{margin-inline-start:auto;color:var(--mute);font-size:20px}
+.ov{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}.ov.mid{align-items:center;padding:20px}.bd{position:absolute;inset:0;background:rgba(0,0,0,.55)}.sheet{position:relative;background:var(--card);width:100%;max-width:430px;border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow:auto;animation:up .25s both}.ov.mid .sheet{border-radius:22px}
+.empty{color:var(--mute);text-align:center;padding:20px 0;font-size:14px}
+
+/* ===== v10 design layer ===== */
+:root{--bg:#fbf6f0;--card:#ffffff;--card2:#fff8f2;--ink:#2b2420;--mute:#857a71;--line:#efe3d8;--pri:#e8604a;--pri2:#ff9a78;--soft:#fdece5;--ok:#2f9e6b;--warn:#e0a21b;--bad:#d64545;--shadow:0 8px 24px rgba(120,80,50,.10)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141110;--card:#211b19;--card2:#2a2321;--ink:#f6efe9;--mute:#a79b92;--line:#372e2b;--soft:#3a221d;--pri:#ec6a52;--ok:#35b87c;--warn:#f0b43a;--bad:#e5565b;--shadow:0 10px 30px rgba(0,0,0,.38)}}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:Tajawal,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55;background:radial-gradient(520px 320px at 100% -40px,rgba(236,106,82,.16),transparent 70%),radial-gradient(420px 300px at 0% 40%,rgba(255,154,120,.06),transparent 70%),var(--bg);background-attachment:fixed}
+button,input,select{font-family:inherit}
+h2{font-size:27px;font-weight:800;letter-spacing:-.4px;margin:8px 0 2px}.sub{line-height:1.6}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;margin:0 -16px 12px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.logo{font-size:20px;font-weight:800;display:flex;align-items:center;gap:6px}
+.logo .chip{min-height:34px;width:34px;padding:0;display:grid;place-items:center;font-size:15px}
+.sw{background:var(--card);border:1px solid var(--line);padding:4px;box-shadow:var(--shadow)}
+.sw button{border-radius:99px;font-weight:700;min-height:36px;display:inline-flex;align-items:center;justify-content:center;transition:.2s}
+.sw button.on{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 4px 12px rgba(236,106,82,.35)}
+.av{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(127,127,127,.22);font-style:normal;font-size:12px;font-weight:800;margin-inline-end:6px}.on .av{background:rgba(255,255,255,.28)}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.card .card{box-shadow:none;border-radius:18px}
+.card>b:first-child,.card>.row:first-child>b{font-size:17px}
+#app>*{animation:up .45s both}#app>*:nth-child(3){animation-delay:.05s}#app>*:nth-child(4){animation-delay:.1s}#app>*:nth-child(5){animation-delay:.15s}#app>*:nth-child(6){animation-delay:.2s}#app>*:nth-child(n+7){animation-delay:.25s}
+.btn{background:linear-gradient(135deg,var(--pri),var(--pri2));min-height:52px;border-radius:16px;font-size:16px;font-weight:800;box-shadow:0 8px 20px rgba(236,106,82,.28)}
+.btn.alt{background:var(--soft);color:var(--pri);box-shadow:none}.btn.ok{background:linear-gradient(135deg,#2f9e6b,#4cc790);box-shadow:0 8px 20px rgba(47,158,107,.28)}.btn.bad{background:linear-gradient(135deg,#d64545,#f07070);box-shadow:0 8px 20px rgba(214,69,69,.25)}.btn:disabled{box-shadow:none}
+.chip{background:var(--card2);border:1px solid var(--line);font-weight:700;color:var(--ink)}
+.badge{padding:5px 12px;font-weight:700;border:1px solid var(--line)}
+input,select{background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px rgba(236,106,82,.18)}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}
+.bar{height:10px}.bar i{border-radius:99px}.bar i[style*="var(--pri)"]{background:linear-gradient(90deg,var(--pri),var(--pri2))!important}
+.mini{background:linear-gradient(180deg,var(--card),var(--card2));border-radius:20px;padding:14px;font-size:12px;box-shadow:var(--shadow)}.mini br{display:none}
+.mini>span{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--soft);font-size:20px;margin-bottom:10px}.mini b{font-size:15px;margin-top:3px;line-height:1.35}
+.hero{background:radial-gradient(320px 180px at 0% 0%,rgba(236,106,82,.25),transparent 70%),linear-gradient(180deg,var(--card),var(--card2));border-color:rgba(236,106,82,.35)}
+.big{font-size:34px;font-weight:800;letter-spacing:-.5px;line-height:1.15}.ring{width:100px;height:100px;flex:none}
+.hline{display:flex;gap:8px 14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--mute);border-top:1px solid var(--line);padding-top:12px}.hline b{color:var(--ink)}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 12px}.quick button{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 6px;color:var(--ink);font-weight:700;font-size:13px;box-shadow:var(--shadow);display:grid;gap:6px;justify-items:center}.quick i{font-style:normal;font-size:22px;width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--soft)}
+.m{border-radius:20px;line-height:1.65;font-size:15px}.m.u{background:linear-gradient(135deg,var(--pri),var(--pri2));box-shadow:0 6px 16px rgba(236,106,82,.25)}.m.a{background:var(--card2)}
+.push{background:rgba(32,25,23,.95);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1)}
+.bill{border-radius:20px;box-shadow:var(--shadow);background:linear-gradient(180deg,var(--card),var(--card2))}.bi{width:48px;height:48px;display:grid!important;place-items:center;background:var(--soft);border-radius:15px;font-size:24px!important}
+.sheet{border-radius:28px 28px 0 0}.sheet::before{content:'';display:block;width:44px;height:4px;border-radius:9px;background:var(--line);margin:-6px auto 14px}.ov.mid .sheet{border-radius:24px}.ov.mid .sheet::before{display:none}
+.nav{left:50%;right:auto;transform:translateX(-50%);width:calc(100% - 24px);max-width:406px;bottom:calc(10px + env(safe-area-inset-bottom,0px));border:1px solid var(--line);border-radius:28px;padding:8px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.nav button{font-size:11.5px;font-weight:700;padding:2px}.ni{display:grid!important;place-items:center;width:54px;height:30px;border-radius:99px;margin:0 auto 3px;transition:.25s}.ni svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on .ni{background:var(--soft);transform:translateY(-1px)}.dotn{top:0;right:24%;border:2px solid var(--card)}
+.toast{border-radius:16px}.empty{padding:28px 0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* v11 fixes: animation was overriding the nav/push transform; compact header */
+#app>.nav,#app>.top,#app>.ov{animation:none}
+#app>.push{animation:drop .5s cubic-bezier(.2,1.3,.5,1) both}
+.logo{white-space:nowrap;font-size:18px;gap:4px}.logo .chip{width:30px;min-height:30px;font-size:14px;margin-inline-start:2px}
+.quick button{min-height:104px;align-content:start;font-size:12.5px;line-height:1.3}
+@media(max-width:400px){.av{display:none}.sw button{padding:6px 12px}.logo{font-size:17px}}
+.kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0}.kinds button{border:1.5px solid var(--line);background:var(--card2);color:var(--ink);border-radius:16px;padding:10px 4px;font-weight:700;font-size:13px;display:grid;gap:4px;justify-items:center}.kinds button i{font-style:normal;font-size:20px}.kinds button.on{border-color:var(--pri);background:var(--soft);color:var(--pri)}
+.verdict{padding:10px 14px;border-radius:14px;font-weight:800;font-size:16px;margin-bottom:6px}.verdict.ok{background:rgba(47,158,107,.16);color:var(--ok)}.verdict.risky{background:rgba(224,162,27,.16);color:var(--warn)}.verdict.no{background:rgba(214,69,69,.16);color:var(--bad)}
+.sw button{white-space:nowrap;font-size:14px;padding:6px 10px}
+</style></head><body><div id="app"></div>
+<script>
+/* ===== data/ ===== */
+const USERS={sarah:{name:'سارة',other:'ahmed'},ahmed:{name:'أحمد',other:'sarah'}};
+const BUDGET={monthly:1500,spent:720,school:500};
+const CATALOG={'حليب':400,'خبز':300,'حفاضات':2200,'منظف الغسيل':1800,'بيض':500,'قهوة':900};
+const PRIVATE={sarah:['سارة تحب الزهور 🌸'],ahmed:['أحمد يدّخر لمفاجأة 🎁']};
+const SHARED=['الميزانية والإنفاق الشهري','طلبات التسوّق والطلبات','مصاريف المدرسة'];
+const AI_ACCESS=['أرقام الميزانية','الطلبات المعتمدة','التفضيلات الخاصة (تُستخدم لاقتراح أفكار فقط ولا تُكشف أبدًا)'];
+const NI={home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>',shop:'<svg viewBox="0 0 24 24"><path d="M3 4h2l2.4 11h10.2L20 7H6.2"/><circle cx="9" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg>',goals:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></svg>',budget:'<svg viewBox="0 0 24 24"><path d="M4 7h14a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2zM4 7V6a2 2 0 012-2h11"/><circle cx="16.5" cy="13.5" r="1.2"/></svg>',ai:'<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>'};
+const ring=p=>{const q=Math.max(0,Math.min(1,p)),d=(q*251.3).toFixed(1);return`<svg class="ring" viewBox="0 0 100 100"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ec6a52"/><stop offset="1" stop-color="#ff9a78"/></linearGradient></defs><circle cx="50" cy="50" r="40" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="50" cy="50" r="40" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${d} 251.3" transform="rotate(-90 50 50)"/><text x="50" y="57" text-anchor="middle" font-size="21" font-weight="800" fill="var(--ink)">${Math.round(q*100)}%</text></svg>`};
+const money=n=>(n<0?'-':'')+Math.abs(Math.round(n)).toLocaleString('en-US')+' دج';
+/* ===== state ===== */
+const S={user:'sarah',tab:'home',draft:[],req:null,review:null,msgs:[{r:'a',t:"مرحبًا! أنا TogetherAI. اسألني عن الميزانية أو قائمة التسوّق أو أفكار الهدايا."}],busy:false,push:false,spentExtra:0,aiMode:'shared',dis:{},showP:false,sim:null,wt:'',addG:false,
+ facts:{sarah:{flowers:true},ahmed:{}},
+ log:['💰 تحديث الميزانية — أُضيفت ميزانية هذا الشهر','🎯 تقدّم هدف الرحلة — 60%'],
+ pm:{sarah:[{r:'u',t:'أنا أحب الزهور وأريد أن أفاجئ أحمد.'},{r:'a',t:'فكرة جميلة! هذه المحادثة خاصة بك، ويمكنني اقتراح أفكار لاحقًا دون كشف ما قلتِه هنا.'}],ahmed:[{r:'a',t:'مرحبًا أحمد! هذه المحادثة خاصة بك ولن تُعرض لشريكتك.'}]},
+ goals:[{i:'✈️',n:'رحلة',target:3000,cur:1800,mo:600,dl:'ديسمبر 2026'},{i:'🏠',n:'صندوق الطوارئ',target:5000,cur:2400,mo:400,dl:'أبريل 2027'}]};
+const ST=['تمت الموافقة','قيد التحضير','جاهز','تم التسليم'];
+S.bt='ov';S.ob=0;S.dstep=1;S.step=0;S.wk='buy';
+let F={done:false,mode:'detail',approx:0,skipInc:false,cats:['السكن','الطعام','الفواتير'],coach:true,fv:{},adults:2,housing:'إيجار',kids:[{n:'',age:4},{n:'',age:8}],
+ income:[{n:'دخل الشريك الأول (أحمد)',amt:120000,vis:'ai',owner:'ahmed'},{n:'دخل الشريك الثاني (سارة)',amt:60000,vis:'shared',owner:'sarah'},{n:'دخل آخر',amt:20000,vis:'shared',owner:'sarah'}],
+ exp:[['الإيجار',30000,'ثابت'],['الكهرباء والغاز',6000,'ثابت'],['الإنترنت والهاتف',4000,'ثابت'],['المدرسة',15000,'ثابت'],['النقل',10000,'متغير'],['الغذاء',35000,'متغير'],['التسوق',15000,'متغير'],['المطاعم',8000,'متغير'],['الملابس',10000,'متغير']].map(([n,amt,cat])=>({n,amt,cat,rec:true,vis:'shared',owner:'sarah'})),
+ save:{cur:480000,mo:20000},
+ goals:[{i:'✈️',n:'رحلة',target:300000,cur:180000,mo:8000},{i:'🚗',n:'سيارة جديدة',target:2500000,cur:400000,mo:6000},{i:'🛟',n:'صندوق الطوارئ',target:500000,cur:240000,mo:6000}],
+ bills:[{n:'الكهرباء والغاز',amt:6000,day:10,rec:'شهري',cat:'فواتير'},{n:'الإنترنت والهاتف',amt:4000,day:12,rec:'شهري',cat:'فواتير'},{n:'المدرسة',amt:15000,day:14,rec:'شهري',cat:'مدرسة'},{n:'الإيجار',amt:30000,day:5,rec:'شهري',cat:'إيجار'}]};
+try{const d=JSON.parse(localStorage.getItem('tg2'));if(d&&d.F){F=d.F;S.req=d.req||null;S.spentExtra=d.x||0;S.log=d.log||S.log;S.pm=d.pm||S.pm}}catch(e){}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function normB(b){if(!b.date){const t=new Date(),t0=new Date(t.getFullYear(),t.getMonth(),t.getDate());let d=new Date(t.getFullYear(),t.getMonth(),b.day||1);if(d<t0)d=new Date(t.getFullYear(),t.getMonth()+1,b.day||1);b.date=iso(d)}
+ if(!['شهري','أسبوعي','مرة واحدة'].includes(b.rec))b.rec='شهري';if(b.link===undefined)b.link=b.rec!=='مرة واحدة'&&F.exp.some(x=>x.n===b.n)}
+F.bills.forEach(normB);F.adults=2;F.kids.forEach(k=>k.age=Math.min(17,Math.max(0,+k.age||0)));if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال');
+function save(){try{localStorage.setItem('tg2',JSON.stringify({F,req:S.req,x:S.spentExtra,log:S.log,pm:S.pm}))}catch(e){}}
+/* ===== services/ finance + aiService ===== */
+const used=a=>a.filter(x=>x.vis!=='me'),sum=a=>a.reduce((t,x)=>t+(+x.amt||0),0);
+function calc(){const income=F.mode==='approx'&&F.approx>0?F.approx:sum(used(F.income)),ex=used(F.exp),fixed=sum(ex.filter(x=>x.cat==='ثابت')),varr=sum(ex.filter(x=>x.cat!=='ثابت')),exp=fixed+varr,save=+F.save.mo||0,flex=income-exp-save-S.spentExtra-oneOff(),press=income?(exp+save+S.spentExtra+oneOff())/income:1;
+ return{income,fixed,varr,exp,save,flex,press,rate:income?save/income:0,st:press<=.8?['🟢','وضع مالي مريح']:press<=.95?['🟡','يحتاج إلى الانتباه']:['🔴','ضغط مالي مرتفع'],members:F.adults+F.kids.length,kids:F.kids.length}}
+const today0=()=>{const t=new Date();t.setHours(0,0,0,0);return t};
+const dueIn=b=>Math.round((new Date(b.date+'T00:00:00')-today0())/864e5);
+const fmtDate=d=>new Date(d+'T00:00:00').toLocaleDateString('ar-DZ',{day:'numeric',month:'long'});
+function monthBills(){const e=new Date();e.setMonth(e.getMonth()+1,0);const end=iso(e);return F.bills.filter(b=>!b.paid&&b.date<=end)}
+function oneOff(){const m=iso(new Date()).slice(0,7);return sum(F.bills.filter(b=>b.rec==='مرة واحدة'&&b.date.startsWith(m)))}
+function syncExp(b,old){const nm=old||b.n,i=F.exp.findIndex(x=>x.n===nm);
+ if(b.rec==='مرة واحدة'){if(b.link&&i>=0)F.exp.splice(i,1);b.link=false;return}
+ const m=b.rec==='أسبوعي'?Math.round(b.amt*52/12):b.amt;
+ if(i>=0){F.exp[i].amt=m;F.exp[i].n=b.n}else F.exp.push({n:b.n,amt:m,cat:'ثابت',rec:true,vis:'shared',owner:S.user});b.link=true}
+const ICON=n=>/كهرباء|غاز/.test(n)?'⚡':/إنترنت|انترنت/.test(n)?'🌐':/مدرسة|دراسة/.test(n)?'🎒':/إيجار|سكن/.test(n)?'🏠':/ماء|مياه/.test(n)?'💧':/هاتف|جوال/.test(n)?'📱':/تأمين/.test(n)?'🛡️':'🧾';
+const upBills=()=>F.bills.filter(b=>!b.paid&&dueIn(b)<=7).sort((a,b)=>dueIn(a)-dueIn(b));
+const dueTxt=b=>{const d=dueIn(b);return b.paid?'مدفوع':d<0?'متأخر':d===0?'مستحق اليوم':d===1?'غدًا':d===2?'بعد يومين':d<=10?'بعد '+d+' أيام':'بعد '+d+' يومًا'};
+const dly=m=>{const w=Math.round(m*4.3);if(m>=50)return'مدة طويلة';if(w<=0)return'أيام قليلة';if(w<5)return w===1?'أسبوع':w===2?'أسبوعين':w+' أسابيع';const n=Math.round(m);return n===1?'شهر':n===2?'شهرين':n+' أشهر'};
+function dlabel(g){if(g.cur>=g.target)return'تحقق ✅';if(!g.mo)return'غير محدد';return new Date(new Date().getFullYear(),new Date().getMonth()+Math.ceil((g.target-g.cur)/g.mo)).toLocaleDateString('ar-DZ',{month:'long',year:'numeric'})}
+function simulate(k,a){const c=calc(),nf=c.flex-a,short=Math.max(0,-nf),v=nf<0?'no':nf<c.flex*.3?'risky':'ok',g=G0(),left=Math.max(0,g.target-g.cur);let m=0;
+ if(k==='buy')m=c.save?short/c.save:0;else if(c.save&&short){const r=Math.max(0,c.save-short)/c.save;m=r>0?left/(g.mo*r)-left/g.mo:99}
+ const ns=Math.max(0,c.save-short),inc=c.income-(k==='inc'?a:0);
+ return{c,nf,short,v,ns,rate:inc?ns/inc:0,goalTxt:!F.goals.length?'لا توجد أهداف مالية بعد':m<=.05?'لا أثر على أهدافكم':'قد يتأخر هدف '+g.n+' بحوالي '+dly(m)}}
+function analyze(total){const c=calc(),pct=c.flex>0?Math.round(total/c.flex*100):999;
+ if(total>c.flex)return{ok:false,pct,msg:`هذه المشتريات تتجاوز الميزانية المرنة المتبقية لهذا الشهر بحوالي ${money(total-Math.max(c.flex,0))}.`};
+ return{ok:true,pct,msg:pct>40?`⚠️ هذا الطلب يستهلك ${pct}% من الميزانية المرنة وقد يؤثر على هدف ${G0().n}.`:`💡 هذا الطلب يستهلك ${pct}% من الميزانية المرنة المتبقية.`}}
+const kidsNote=()=>{const a=F.kids.map(k=>+k.age);if(!a.length)return'';const sch=a.filter(x=>x>=5&&x<=17).length,sm=a.filter(x=>x<5).length;return[sch?`لديكم ${sch} في سن الدراسة، فضعوا في الحسبان المستلزمات المدرسية والملابس`:'',sm?'وجود طفل صغير يعني أن مصاريف الغذاء والرعاية قد تتغيّر بسرعة':''].filter(Boolean).join('، و')+'.'};
+function plan(){const c=calc(),g=n=>sum(used(F.exp).filter(x=>x.n.includes(n))),buf=Math.max(0,Math.round(c.flex*.4/1000)*1000),inc=c.income||1,notes=[];
+ const rows=[['🍽️ الغذاء',g('الغذاء')],['🧾 الفواتير',c.fixed-g('المدرسة')-g('الإيجار')],['🏠 السكن',g('الإيجار')],['🧒 الأطفال والمدرسة',g('المدرسة')+g('الأطفال')],['🚌 النقل',g('النقل')],['🛍️ التسوق والملابس',g('التسوق')+g('الملابس')],['🎬 المطاعم والترفيه',g('المطاعم')+g('الترفيه')],['💰 الادخار',c.save],['🛟 احتياطي للطوارئ',buf]];
+ if(g('المطاعم')+g('الترفيه')>inc*.06)notes.push(`مصروف المطاعم والترفيه (${money(g('المطاعم')+g('الترفيه'))}) أعلى من 6% من الدخل.`);
+ if(g('التسوق')+g('الملابس')>inc*.1)notes.push(`التسوق والملابس (${money(g('التسوق')+g('الملابس'))}) يتجاوزان 10% من الدخل؛ فكّروا في خفضهما.`);
+ if(g('الغذاء')>inc*.25)notes.push('مصروف الغذاء مرتفع نسبيًا مقارنة بالدخل.');
+ if(c.flex<0)notes.push(`الميزانية المرنة سالبة بمقدار ${money(-c.flex)}؛ راجعوا المصاريف المتغيرة.`);
+ const t=kidsNote();if(t)notes.push(t);const gl=G0();if(gl&&gl.mo)notes.push(`إذا حافظتم على هذا المستوى، يتحقق هدف ${gl.n} في ${dlabel(gl)}.`);
+ return{rows,notes,free:c.flex-buf}}
+const G0=()=>F.goals[0]||{i:'🎯',n:'ادخاركم',target:1,cur:0,mo:0};
+const curVis=()=>(F.fv&&F.fv[S.user])||(F.income.find(x=>x.owner===S.user)||{}).vis||'shared';
+const SUG=[['الإيجار','ثابت'],['الكهرباء والغاز','ثابت'],['الإنترنت والهاتف','ثابت'],['المدرسة','ثابت'],['النقل','متغير'],['الطعام','متغير'],['التسوق','متغير'],['المطاعم','متغير'],['الملابس','متغير'],['الديون','ثابت'],['التأمين','ثابت'],['مصاريف أخرى','متغير']];
+const sug=()=>{const m=SUG.filter(([n])=>(n!=='المدرسة'||F.kids.some(k=>k.age>=5&&k.age<=17))&&!F.exp.some(x=>x.n===n||(n==='الطعام'&&x.n==='الغذاء')));return m.length?`<div class="card"><b>اقتراحات سريعة</b><div class="chips">${m.map(([n,c])=>`<button class="chip" data-a="esug" data-n="${n}" data-c="${c}">+ ${n}</button>`).join('')}</div></div>`:''};
+const norm=q=>q.toLowerCase().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/(\d[\d,.]*)\s*(ألف|الف|k)/g,(_,n)=>String(+n.replace(/,/g,'')*1000));
+function learn(q){const t=norm(q);if(/[؟?]/.test(t)||/^\s*(هل|ماذا|كم|كيف|ما |متى)/.test(t))return null;const m=t.match(/\d[\d,٬.]*/);if(!m)return null;const a=+m[0].replace(/[,٬.]/g,'');if(a<100)return null;
+ const B=[[/كهرباء|غاز/,'الكهرباء والغاز','فاتورة الكهرباء والغاز'],[/إنترنت|انترنت|هاتف/,'الإنترنت والهاتف','فاتورة الإنترنت والهاتف'],[/إيجار/,'الإيجار','الإيجار']];
+ if(/فاتورة|إيجار/.test(t)){const b=B.find(x=>x[0].test(t));if(b)return{t:`هل تريد أن أتذكر أن ${b[2]} لديكم عادةً حوالي ${money(a)}؟`,y:'نعم، تذكرها',n:'ليس الآن',ok:`سأعتمد ${money(a)} لبند ${b[1]}.`,apply(){const x=F.exp.find(e=>e.n===b[1]);if(x)x.amt=a;else F.exp.push({n:b[1],amt:a,cat:'ثابت',rec:true,vis:'shared',owner:S.user});const bl=F.bills.find(e=>e.n===b[1]);if(bl)bl.amt=a}}}
+ if(/صرفنا|أنفقنا|دفعنا|اشترينا|صرفت|دفعت/.test(t)){const C=[[/ملابس الأطفال|ملابس الاطفال|أطفال/,'الأطفال'],[/ملابس/,'الملابس'],[/طعام|أكل|غذاء/,'الغذاء'],[/مطعم|مطاعم/,'المطاعم'],[/نقل|بنزين|وقود/,'النقل']],c=(C.find(x=>x[0].test(t))||[0,'أخرى'])[1];return{t:`هل تريد أن أضيف هذا إلى مصاريف ${c} لهذا الشهر؟`,y:'أضفها',n:'لا',ok:`أضفتُ ${money(a)} إلى مصاريف ${c} لهذا الشهر.`,apply(){S.spentExtra+=a;S.log.unshift('💰 أُضيف مصروف '+c+': '+money(a))}}}
+ return null}
+function fix(p){const g=p.match(/^goals\.(\d+)\./);if(g){const x=F.goals[+g[1]];if(x&&x.cur>x.target){x.cur=x.target;toast('المبلغ المدخر لا يتجاوز المبلغ المستهدف')}}
+ const k=p.match(/^kids\.(\d+)\.age/);if(k){const x=F.kids[+k[1]];if(x)x.age=Math.min(17,Math.max(0,x.age))}
+ if(p==='save.mo'){const c=calc();if(c.income&&F.save.mo>c.income){F.save.mo=Math.max(0,c.income-c.exp);toast('الادخار لا يمكن أن يتجاوز الدخل')}}}
+const ageTxt=a=>a===0?'أقل من سنة':a===1?'سنة':a===2?'سنتان':a<=10?a+' سنوات':a+' سنة';
+const stage=a=>a<3?'رعاية مبكرة':a<5?'قبل المدرسة':'في سن الدراسة';
+const num=t=>+t.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^\d]/g,'');
+/* استبدل هذه الدالة باستدعاء fetch() إلى خادمك الذي يتصل بنموذج لغوي حقيقي (أبقِ مفتاح API في الخادم). المنطق يعمل على ملخصات مصرّح بها فقط. */
+const aiService={async reply(q,ctx){await new Promise(r=>setTimeout(r,700));const t=q.toLowerCase().replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/(\d[\d,.]*)\s*(ألف|الف|k)/g,(_,n)=>String(+n.replace(/,/g,'')*1000)),c=calc();
+ const m=t.match(/\d[\d,٬.]*/),a=m?+m[0].replace(/[,٬.]/g,''):0;
+ if(/(سارة|أحمد|شريكي|شريكتي|sarah|ahmed|partner)/.test(t)&&/(خاص|سر|private|secret|قال لك|قالت لك|أخبرت)/.test(t)&&/(اعرض|أظهر|أرني|show|ماذا|كل ما|everything)/.test(t))return"لا أستطيع عرض المعلومات الخاصة بشريكك. يمكنني مساعدتك في الأمور التي تم الاتفاق على مشاركتها.";
+ if(/(دخل|راتب|income|salary)/.test(t)&&/(شريكي|شريكتي|أحمد|سارة|partner|ahmed|sarah)/.test(t)&&!/(انخفض|ينخفض|انخفاض|ينقص|نقص|ترتفع)/.test(t))return`لا أستطيع كشف دخل شريكك أو أي بيانات مالية خاصة به. بناءً على المعلومات المالية المصرّح بها للأسرة، الوضع الحالي: ${c.st[0]} ${c.st[1]}.`;
+ if(/(راقب|تجسس|تتبع|monitor|spy|track)/.test(t))return"لا أستطيع مساعدتك في مراقبة شريكك أو تتبّع نشاطه الخاص. أساعدكما فقط في الأمور المشتركة المتفق عليها.";
+ if(ctx.priv&&/(أحب|احب|أريد|اريد|love|want)/.test(t)){if(/زهور|ورد|flower/.test(t))S.facts[ctx.user].flowers=true;return"تم. هذه المحادثة خاصة بك ولن تُعرض لشريكك. سأستخدم ما يفيدك في اقتراحاتي دون أن أنسبه إليك أمام أحد."}
+ if(a&&/(دخل|راتب)/.test(t)&&/(انخفض|ينخفض|انخفاض|ينقص|نقص)/.test(t)){const r=simulate('inc',a);return`لو انخفض دخل أحد الشريكين بمقدار ${money(a)}، تصبح الميزانية المرنة ${money(r.nf)}${r.short?` ويُسحب ${money(r.short)} من الادخار الشهري`:''}. ${r.goalTxt}.`}
+ if(a&&/(فاتورة|كهرباء|غاز|إيجار)/.test(t)&&/(ترتفع|ارتفاع|زيادة|تزيد)/.test(t)){const r=simulate('bill',a);return`إذا ارتفعت الفاتورة بمقدار ${money(a)} شهريًا، تنخفض الميزانية المرنة إلى ${money(r.nf)}. ${r.goalTxt}.`}
+ if(a&&/(afford|buy|spend|نستطيع|نقدر|يمكننا|شراء|نشتري|ملابس|هاتف|أقدر)/.test(t)){const r=simulate('buy',a),up=upBills(),us=sum(up);
+  if(r.nf<0)return`لا يُنصح بذلك الآن؛ ${money(a)} يتجاوز الميزانية المرنة (${money(c.flex)}) بحوالي ${money(-r.nf)} وسيُسحب من الادخار. ${r.goalTxt}. الأفضل تأجيل الشراء.`;
+  return`نعم، يمكنكم تحمّل ${money(a)}، ${r.v==='ok'?`وسيبقى لديكم حوالي ${money(r.nf)} من الميزانية المرنة.`:`لكن ذلك سيترك حوالي ${money(r.nf)} فقط من الميزانية المرنة لهذا الشهر.`} ${up.length?`لديكم ${up.length} فواتير خلال أسبوع (${money(us)})، فمن الأفضل تأجيل الشراء.`:r.v==='risky'?'إذا ظهرت فواتير أو مصاريف مدرسية قادمة فمن الأفضل التأجيل.':'لا أثر يُذكر على أهدافكم.'}`}
+ if(!a&&/فواتير|الفواتير|bills/.test(t)){const u=upBills();return u.length?`لديكم ${u.length} فواتير خلال أسبوع: `+u.map(b=>`${b.n} (${money(b.amt)} — ${dueTxt(b)})`).join('، ')+'.':'لا توجد فواتير مستحقة خلال الأسبوع القادم.'}
+ if(!a&&/هدف|أهداف|goal/.test(t))return F.goals.map(g=>`${g.i} ${g.n}: ${gp(g)}% (${money(g.cur)} من ${money(g.target)}) — المتوقع ${dlabel(g)}`).join('. ')+'.';
+ if(/need|list|shopping|order|نحتاج|نشتري|قائمة|تسوق|طلب/.test(t)){const r=ctx.req;if(!r)return"لا يوجد طلب منزلي نشط حاليًا.";
+  const names=r.items.map(i=>i.n).join('، ');
+  return r.status==='waiting'?`يوجد طلب معلّق (${names}) بانتظار الموافقة.`:r.status==='rejected'?'تم رفض الطلب الأخير.':`لديك طلب منزلي موافق عليه يحتوي على: ${names}. حالة الطلب: ${ST[r.stage]}.`}
+ if(/gift|surprise|idea|هدية|مفاجأة|فكرة|اقتراح/.test(t)){const f=S.facts[ctx.user==='ahmed'?'sarah':'ahmed'];return ctx.priv&&ctx.user==='ahmed'&&f.flowers?`قد تكون الزهور خيارًا جميلًا 🌸 وتناسب ميزانيتكما (المتاح ${money(c.flex)}).`:`أستطيع اقتراح عشاء هادئ أو هدية صغيرة تناسب ميزانيتكما (المتاح ${money(c.flex)}).`}
+ if(/budget|left|remain|ميزانية|المتبقي|تبقى|متبقي|وضع/.test(t)){const up=upBills();return`${c.st[0]} ${c.st[1]}: الدخل ${money(c.income)}، المصاريف ${money(c.exp)}، الادخار ${money(c.save)}، والمتبقي للمصاريف المرنة ${money(c.flex)}.${up.length?` وهناك ${up.length} فواتير خلال أسبوع.`:''} ${kidsNote()}`}
+ return"يمكنني مساعدتك في أسئلة الميزانية، والمشتريات، والفواتير القادمة، والأهداف. جرّب: «هل يمكننا شراء هاتف بـ 35,000 دج؟»"}};
+/* ===== components/ ===== */
+const badge=r=>!r?'':r.status==='waiting'?'<span class="badge b-w">🟡 بانتظار الموافقة</span>':r.status==='approved'?'<span class="badge b-a">🟢 تمت الموافقة</span>':'<span class="badge b-r">🔴 مرفوض</span>';
+const itemsList=(items,rm,sp=true)=>items.map((i,k)=>`<div class="item"><span>${i.n}</span><span>${sp?money(i.p):''} ${rm?`<button class="x" data-a="rm" data-k="${k}">✕</button>`:''}</span></div>`).join('');
+const total=items=>items.reduce((s,i)=>s+i.p,0);
+function tracker(r){return`<div class="card"><div class="row"><b>حالة الطلب</b>${r.stage===3?'<span class="badge b-a">تم التسليم ✓</span>':''}</div>`+ST.map((s,i)=>`<div class="step ${i<=r.stage?'done':''} ${i===r.stage&&r.stage<3?'now':''}"><span class="dot">${i<=r.stage?'✓':''}</span>${s}</div>`).join('')+
+ (r.stage<3?`<button class="btn alt" data-a="adv">تحديد: ${ST[r.stage+1]}</button>`:'')+'</div>'}
+/* ===== screens/ ===== */
+const pct=(a,b)=>Math.round(a/b*100),gp=g=>Math.min(100,pct(g.cur,g.target)),esc=v=>String(v).replace(/"/g,'&quot;');
+const VIS={me:'أنا فقط',shared:'مشترك مع الشريك',ai:'الذكاء الاصطناعي فقط'};
+const ok=x=>x.vis==='shared'||x.owner===S.user;
+const privacyCard=()=>{const mine=[...F.income,...F.exp].filter(x=>x.owner===S.user),cv=curVis(),n=v=>mine.filter(x=>x.vis===v).length;
+ return`<div class="card"><b>🔒 مركز الخصوصية</b><p class="sub" style="margin:4px 0 6px">TogetherAI يفصل بين معلوماتك الخاصة والمعلومات المشتركة.</p>
+ ${[['🔒 خاص بي','background:var(--soft)',`${n('me')} بنود: لا يراها شريكك ولا تدخل في حسابات الأسرة.`],['❤️ مشترك بيننا','background:#d9f3e5;color:#1b6b46',`${n('shared')} بنود يراها الطرفان.`],['🤖 للذكاء الاصطناعي فقط','background:#e5e1fb;color:#4b3fb3',`${n('ai')} بنود: لا يراها شريكك، ويستخدمها TogetherAI في الحسابات دون كشف مصدرها.`]].map(([a,c,t])=>`<div class="item" style="gap:10px;align-items:flex-start"><span class="tag" style="${c};white-space:nowrap">${a}</span><span style="font-size:13px;flex:1">${t}</span></div>`).join('')}
+ <div style="margin-top:12px"><b style="font-size:14px">خصوصية معلوماتي المالية 🔒</b><div class="chips">${[['me','خاصة بي'],['shared','مشاركة مع الشريك'],['ai','السماح لـ TogetherAI باستخدامها']].map(([k,l])=>`<button class="chip" style="${cv===k?'background:var(--pri);color:#fff':''}" data-a="fv" data-v="${k}">${l}</button>`).join('')}</div><p class="sub" style="font-size:12px;margin:0">ينطبق على دخلك أنت. «خاصة بي» لا تدخل في حسابات الأسرة، و«السماح لـ TogetherAI» تستخدمها دون كشفها لشريكك.</p></div><p class="sub" style="font-size:12px;margin:8px 0 0">محادثتك الخاصة لا يقرؤها أحد، ولا توجد أي ميزة مراقبة.</p></div>`};
+const snap=()=>{const c=calc(),p=v=>Math.min(100,c.income?v/c.income*100:0);return`<div class="card"><div class="row"><b>ملخص الوضع المالي</b><span class="badge">${c.st[0]} ${c.st[1]}</span></div>
+ <div class="bar" style="margin:12px 0"><i style="width:${p(c.fixed)}%;background:var(--warn)"></i><i style="width:${p(c.varr)}%;background:var(--pri)"></i><i style="width:${p(c.save)}%;background:#6a5be2"></i><i style="width:${p(Math.max(c.flex,0))}%;background:var(--ok)"></i></div>
+ <div class="leg" style="margin:0 0 6px"><span>🟨 ثابتة</span><span>🟧 متغيرة</span><span>🟪 ادخار</span><span>🟩 متبقٍ</span></div>
+ ${[['الدخل الشهري',money(c.income)],['المصاريف الثابتة',money(c.fixed)],['المصاريف المتغيرة',money(c.varr)],['الادخار',money(c.save)+' ('+(c.rate*100).toFixed(0)+'%)'],['المتبقي (مرن)',money(c.flex)],['أفراد الأسرة',c.members],['عدد الأطفال',c.kids]].map(([a,b])=>`<div class="item"><span>${a}</span><b>${b}</b></div>`).join('')}</div>`};
+function billsView(){const l=F.bills.map((b,k)=>[b,k]).filter(([b])=>!b.paid).sort((a,b)=>dueIn(a[0])-dueIn(b[0])),pd=F.bills.map((b,k)=>[b,k]).filter(([b])=>b.paid),m=monthBills();
+ const card=([b,k])=>{const d=dueIn(b),st=b.paid?'paid':d<0?'late':d===0?'today':'';return`<button class="card bill ${st}" data-a="bopen" data-k="${k}"><span class="bi">${d<0&&!b.paid?'⚠️':ICON(b.n)}</span><span><b>${b.n}</b><small>${money(b.amt)} · ${dueTxt(b)}</small></span><span class="go">‹</span></button>`};
+ return`<h2 style="font-size:20px;margin-bottom:2px">الفواتير القادمة</h2><p class="sub">${m.length} فواتير هذا الشهر · ${money(sum(m))}</p>${l.map(card).join('')||'<div class="empty">لا توجد فواتير قادمة</div>'}${pd.length?`<p class="sub" style="margin:12px 0 6px">مدفوعة</p>${pd.map(card).join('')}`:''}<button class="btn" data-a="badd0">+ إضافة فاتورة</button>${sheetHTML()}`}
+function sheetHTML(){const sh=S.sheet;if(!sh)return'';const b=F.bills[sh.k],d=sh.d||{};
+ const fld=`<div style="display:grid;gap:10px;margin-top:12px"><input id="sn" placeholder="اسم الفاتورة" value="${esc(d.n)}"><div class="in2"><input id="sa" inputmode="numeric" placeholder="المبلغ" value="${d.amt?num(String(d.amt)).toLocaleString('en-US'):''}" style="font-size:22px!important;font-weight:700"><b>دج</b></div><input id="sd" type="date" value="${d.date}"><div class="chips" style="margin:0">${['شهري','أسبوعي','مرة واحدة'].map(r=>`<button class="chip" style="${d.rec===r?'background:var(--pri);color:#fff':''}" data-a="srec" data-v="${r}">${r}</button>`).join('')}</div></div>`;
+ const head=t=>`<div class="row"><b style="font-size:18px">${t}</b><button class="chip" data-a="bclose">✕</button></div>`;
+ if(sh.mode==='del')return`<div class="ov mid"><div class="bd" data-a="bclose"></div><div class="sheet"><b style="font-size:18px">هل تريد حذف هذه الفاتورة؟</b><p class="sub" style="margin:6px 0 0">${b.n} · ${money(b.amt)}</p><div class="btns"><button class="btn alt" data-a="bclose">إلغاء</button><button class="btn bad" data-a="bdel">حذف</button></div></div></div>`;
+ return`<div class="ov"><div class="bd" data-a="bclose"></div><div class="sheet">`+(sh.mode==='add'?head('إضافة فاتورة')+fld+'<button class="btn" data-a="bsave">حفظ الفاتورة</button>':sh.mode==='edit'?head('تعديل الفاتورة')+fld+'<button class="btn" data-a="bsave">حفظ التعديل</button>':
+ `<div class="row"><b style="font-size:18px">تفاصيل الفاتورة</b><span><button class="chip" data-a="bedit" aria-label="تعديل">✏️</button> <button class="chip" data-a="bclose">✕</button></span></div>
+ <div style="margin:14px 0 10px"><div class="sub" style="margin:0">${ICON(b.n)} ${b.n}</div><div style="font-size:32px;font-weight:800;margin:2px 0">${money(b.amt)}</div><div class="sub" style="margin:0">${dueTxt(b)} · ${fmtDate(b.date)}</div></div>
+ <div class="item"><span>التكرار</span><b>${b.rec}</b></div>${b.cat?`<div class="item"><span>التصنيف</span><b>${b.cat}</b></div>`:''}${b.lastPaid?`<div class="item"><span>آخر دفعة</span><b>${fmtDate(b.lastPaid)}</b></div>`:''}
+ ${b.paid?'':'<button class="btn ok" data-a="bpay">تم الدفع ✓</button>'}<button class="chip" style="margin-top:12px;color:var(--bad)" data-a="bdel0">حذف الفاتورة</button>`)+`</div></div>`}
+const screens={
+home(){const u=USERS[S.user],c=calc(),h=new Date().getHours(),g=h<12?'صباح الخير':'مساء الخير',r=S.req,w=r&&r.status==='waiting',up=upBills(),rt=r?total(r.items):0;
+ const rec=w&&r.from!==S.user?`لديك طلب منزلي بانتظار موافقتك بقيمة ${money(rt)} (${r.ai.pct}% من الميزانية المرنة).`:c.flex<0?`الميزانية المرنة سالبة بمقدار ${money(-c.flex)}. أقترح مراجعة المصاريف المتغيرة.`:up.length?`لديكم ${up.length} فواتير خلال الأسبوع القادم بقيمة ${money(sum(up))}. أقترح تأجيل المشتريات غير الضرورية حتى سدادها.`:`الميزانية المرنة ${money(c.flex)}. يمكنكم تخصيص جزء منها لهدف ${G0().n}.`;
+ return`<h2>${g}، ${u.name}</h2><p class="sub">نظرة سريعة على أسرتك</p><div class="quick"><button data-a="go" data-t="shop" data-c="1"><i>🛒</i>طلب جديد</button><button data-a="go" data-t="budget" data-b="wi"><i>🔮</i>ماذا لو؟</button><button data-a="go" data-t="ai"><i>✨</i>اسأل TogetherAI</button></div>
+ ${F.coach===false?'':`<div class="card" style="border-color:var(--pri)"><b>🤖 هل تريد أن أساعدك في بناء ميزانية أدق؟</b><p class="sub" style="margin:4px 0 0">أضف التفاصيل متى شئت — لا شيء إلزامي.</p><div class="btns"><button class="btn" data-a="coach">نعم، لنبدأ</button><button class="btn alt" data-a="coachno">ليس الآن</button></div></div>`}
+ ${F.goals.length?'':`<div class="card"><b>🎯 هل لديكم هدف مالي؟</b><button class="btn alt" data-a="go" data-t="goals" data-g="1">+ إضافة هدف</button></div>`}
+ <div class="card hero"><div class="row"><div style="min-width:0"><div class="sub" style="margin:0">${new Date().toLocaleDateString('ar-DZ',{weekday:'long',day:'numeric',month:'long'})}</div><div class="big">${money(c.flex)}</div><div class="sub" style="margin:2px 0 10px">المتبقي للمصاريف المرنة</div><span class="badge">${c.st[0]} ${c.st[1]}</span></div>${ring(c.income?Math.max(0,c.flex)/c.income:0)}</div>
+ <div class="hline"><span>💰 الدخل التقريبي <b>${c.income?money(c.income):'غير محدد'}</b></span><span>📊 ${(F.cats.length?F.cats:['—']).slice(0,4).join('، ')}</span><span>🧾 ${up.length} فواتير هذا الأسبوع</span></div></div>
+ <div class="grid"><div class="mini"><span>${c.st[0]}</span><br>الوضع المالي<b>${c.st[1]}</b></div><div class="mini"><span>🛒</span><br>المشتريات<b>${!r?'لا شيء':w?'بانتظار الموافقة':r.status==='rejected'?'مرفوض':ST[r.stage]}</b></div><div class="mini"><span>💰</span><br>المرن المتبقي<b>${money(c.flex)}</b></div><div class="mini"><span>🧾</span><br>الفواتير القادمة<b>${up.length} هذا الأسبوع</b></div></div>
+ ${S.dis[S.user]?'':`<div class="card" style="background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:0"><b style="font-size:17px">🤖 اقتراح من TogetherAI</b><p style="margin:8px 0 4px;line-height:1.6">${rec}</p>
+ <div class="btns" style="flex-wrap:wrap"><button class="btn" style="background:#fff;color:var(--pri);flex:1" data-a="tab" data-t="budget">مراجعة الميزانية</button>${r?'<button class="btn" style="background:rgba(255,255,255,.22);flex:1" data-a="tab" data-t="shop">عرض الطلب</button>':''}<button class="btn" style="background:rgba(255,255,255,.22);flex:1" data-a="dis">تجاهل</button></div></div>`}
+ ${(()=>{const mb=monthBills(),nx=upBills()[0];return`<div class="card"><b>📋 الفواتير القادمة</b><p class="sub" style="margin:6px 0 0">${mb.length?`لديكم ${mb.length} فواتير بقيمة ${money(sum(mb))} هذا الشهر.${nx?` أقربها: ${nx.n} — ${dueTxt(nx)}.`:''}`:'لا توجد فواتير هذا الشهر.'}</p><button class="btn alt" data-a="go" data-t="budget" data-b="bl">عرض الفواتير</button></div>`})()}
+ <div class="card"><b>🎯 أهداف الأسرة</b>${F.goals.slice(0,3).map(g=>`<div style="margin-top:10px"><div class="row" style="font-size:14px"><span>${g.i} ${g.n}</span><span>${gp(g)}%</span></div><div class="bar" style="height:8px;margin-top:4px"><i style="width:${gp(g)}%;background:var(--pri)"></i></div></div>`).join('')}</div>
+ <div class="card"><b>آخر نشاط</b>${S.log.slice(0,4).map(x=>`<div class="item" style="font-size:14px">${x}</div>`).join('')}</div>${privacyCard()}`},
+shop(){const r=S.req,me=S.user;let h='<h2>التسوّق</h2><p class="sub">طلبات المنزل</p>';
+ if(r){const t=total(r.items),a=r.ai,pend=r.status==='waiting'&&r.from!==me;
+  h+=`<div class="card"><div class="row"><b>🏠 طلب منزلي</b>${badge(r)}</div><div class="sub" style="margin:4px 0 8px">بواسطة ${USERS[r.from].name} · ${r.time}</div>${itemsList(r.items,false,S.showP||!pend)}
+  <div class="row" style="margin-top:8px"><span>الإجمالي التقديري</span><b style="font-size:22px">${money(t)}</b></div><div class="row" style="margin-top:4px"><span class="sub" style="margin:0">أثر الميزانية</span><b>${a.pct}% من المتاح</b></div>
+  <div class="card" style="background:var(--soft);margin:10px 0 0;padding:12px;font-size:13px;line-height:1.6"><b>🤖 توصية TogetherAI</b><br>${a.msg}</div>
+  ${pend?`<div class="btns"><button class="btn ok" data-a="approve">موافقة</button><button class="btn bad" data-a="reject">رفض</button></div><button class="btn alt" data-a="rv">${S.showP?'إخفاء الأسعار':'مراجعة العناصر'}</button>`
+  :r.status==='waiting'?'<p class="sub" style="margin:10px 0 0">✅ تم إرسال الطلب بنجاح. بانتظار '+USERS[USERS[me].other].name+'.</p>':r.status==='approved'?'<p class="sub" style="margin:10px 0 0">تمت الموافقة على الطلب.</p>':'<p class="sub" style="margin:10px 0 0">تم رفض الطلب.</p>'}</div>`;
+  if(r.status==='approved')h+=tracker(r);
+  if(r.status!=='waiting')h+=`<button class="btn alt" data-a="new">+ طلب جديد</button>`}
+ if(!r||(r.status!=='waiting'&&S.composing))h+=composer();return h},
+goals(){const c=calc();let h='<h2>الأهداف المشتركة</h2><p class="sub">ما تدّخرانه معًا</p>'+F.goals.map(g=>`<div class="card"><div class="row"><b>${g.i} ${g.n}</b><span class="badge">${gp(g)}%</span></div>
+ <div class="bar" style="margin:12px 0 8px"><i style="width:${gp(g)}%;background:var(--pri)"></i></div>
+ <div class="row sub" style="margin:0"><span>${money(g.cur)} من ${money(g.target)}</span><span>الموعد المتوقع: ${dlabel(g)}</span></div><div class="row sub" style="margin:6px 0 0"><span>مساهمة شهرية</span><b style="color:var(--ink)">${money(g.mo)}</b></div></div>`).join('');
+ h+=`<div class="card" style="background:var(--soft);font-size:14px;line-height:1.6">🤖 المتبقي للمصاريف المرنة ${money(c.flex)}${c.flex>=0?'، وأهدافكما على المسار.':'، وقد تتأخر الأهداف.'}</div>`;
+ return h+(S.addG?`<div class="card"><b>هدف جديد</b><div style="display:grid;gap:8px;margin-top:8px"><input id="gn" placeholder="اسم الهدف"><input id="gt" inputmode="numeric" placeholder="المبلغ المستهدف (دج)"><input id="gc" inputmode="numeric" placeholder="المبلغ المدخر حاليًا (دج)"></div><button class="btn" data-a="gadd">حفظ الهدف</button></div>`:'<button class="btn" data-a="ag">إضافة هدف</button>')},
+budget(){const c=calc(),sm=S.sim,pl=S.plan?plan():null,up=F.bills.filter(b=>!b.paid).sort((a,b)=>dueIn(a)-dueIn(b));let sim='';
+ if(sm){const r=simulate(sm.k,sm.a),vt={ok:'🟢 مريح',risky:'🟡 مخاطرة',no:'🔴 يُفضَّل التأجيل'}[r.v];sim=`<div class="card" style="background:var(--soft);margin:12px 0 0"><div class="verdict ${r.v}">${vt}</div><div class="item"><span>المرن الآن</span><b>${money(c.flex)}</b></div><div class="item"><span>المرن بعد السيناريو</span><b style="color:${r.nf<0?'var(--bad)':'var(--ok)'}">${money(r.nf)}</b></div><div class="item"><span>الادخار الشهري</span><b>${money(c.save)} ← ${money(r.ns)} (${(r.rate*100).toFixed(0)}%)</b></div><p style="font-size:14px;margin:8px 0">🎯 ${r.goalTxt}<br>الحكم: <b>${vt}</b></p><p class="sub" style="font-size:12px">محاكاة فقط${sm.k==='buy'?' — لن تتغير الميزانية إلا إذا ضغطت «شراء».':'.'}</p><div class="btns">${sm.k==='buy'?'<button class="btn ok" data-a="wapply">شراء</button><button class="btn alt" data-a="wclose">تأجيل</button><button class="btn alt" data-a="wedit">تعديل المبلغ</button>':'<button class="btn alt" data-a="wclose">إغلاق</button>'}</div></div>`}
+ return`<h2>الميزانية</h2><p class="sub">الوضع المالي للأسرة</p><div class="sw" style="margin-bottom:12px;display:flex">${[['ov','نظرة عامة'],['wi','ماذا لو؟'],['bl','الفواتير'],['dt','التفاصيل']].map(([k,l])=>`<button style="flex:1" class="${S.bt===k?'on':''}" data-a="bt" data-v="${k}">${l}</button>`).join('')}</div>${S.bt==='ov'?snap():''}
+ ${S.bt==='ov'?`<div class="card"><b>🤖 تحليل TogetherAI</b><div style="font-size:14px;line-height:1.9;margin-top:6px">• ${c.st[0]} ${c.st[1]}: تُنفقون ${(c.press*100).toFixed(0)}% من الدخل (مع الادخار).<br>• لديكم ${money(c.flex)} للمصاريف المرنة.<br>• ${up.length?`${upBills().length} فواتير خلال أسبوع، أقربها ${up[0].n} (${dueTxt(up[0])}).`:'لا فواتير قريبة.'}<br>• ${c.flex>=0?`هدف ${G0().n} المتوقع في ${dlabel(G0())}.`:'بهذا الإنفاق قد تتأخر أهدافكم.'}</div><button class="btn" data-a="plan">خطط هذا الشهر</button></div>`:''}
+ ${pl&&S.bt==='ov'?`<div class="card"><b>خطة هذا الشهر</b>${pl.rows.map(([a,b])=>`<div class="item"><span>${a}</span><b>${money(b)}</b></div>`).join('')}<div class="item"><span>حرّ بعد الاحتياطي</span><b>${money(pl.free)}</b></div>${pl.notes.map(n=>`<p style="font-size:13px;margin:8px 0 0">💡 ${n}</p>`).join('')}</div>`:''}
+ ${S.bt==='wi'?`<div class="card"><div class="row"><b>ماذا لو؟</b><span class="sub" style="margin:0">المتاح الآن: <b style="color:var(--ink)">${money(c.flex)}</b></span></div>
+ <div class="kinds">${[['buy','🛍️','مصروف جديد'],['bill','⚡','فاتورة أعلى'],['inc','📉','دخل أقل']].map(([k,i,l])=>`<button class="${S.wk===k?'on':''}" data-a="wk" data-k="${k}"><i>${i}</i>${l}</button>`).join('')}</div>
+ <p class="sub" style="margin:8px 0">${{buy:'شراء لمرة واحدة هذا الشهر',bill:'زيادة شهرية متكررة في فاتورة',inc:'انخفاض شهري في دخل الأسرة'}[S.wk]}</p>
+ <div class="in2"><input id="wa" inputmode="numeric" placeholder="المبلغ" value="${S.wt?num(String(S.wt)).toLocaleString('en-US'):''}" style="font-size:22px!important;font-weight:700"><b>دج</b></div>
+ <div class="chips" style="margin:10px 0 0">${[5000,20000,45000,100000].map(v=>`<button class="chip" data-a="wq" data-v="${v}">${money(v)}</button>`).join('')}</div>
+ <button class="btn" data-a="wcalc">احسب الأثر</button>${sim}</div>`:''}${S.bt==='bl'?billsView():''}${S.bt==='dt'?screens.details():''}`},
+ai(){const pr=S.aiMode==='private',ms=pr?S.pm[S.user]:S.msgs,pn=USERS[USERS[S.user].other].name;
+ const qs=pr?[`ما الهدية التي قد تعجب ${pn}؟`,'اعرض لي كل ما قاله شريكي لك بشكل خاص']:['هل يمكننا شراء هاتف بـ 35 ألف دج؟','فاتورة الكهرباء هذا الشهر كانت 7000 دج','صرفنا 20 ألف على ملابس الأطفال','ما الفواتير القادمة؟'];
+ return`<h2>TogetherAI</h2><div class="sw" style="margin:8px 0 12px"><button style="flex:1" class="${pr?'':'on'}" data-a="mode" data-m="shared">❤️ مشترك</button><button style="flex:1" class="${pr?'on':''}" data-a="mode" data-m="private">🔒 المساعد الخاص</button></div>
+ ${pr?'<div class="card" style="background:var(--soft);padding:12px;font-size:14px">🔒 هذه المحادثة خاصة بك. لن يتم عرضها لشريكك.</div>':'<p class="sub">محادثة مشتركة تعتمد على بيانات الأسرة المصرّح بها</p>'}
+ <div class="msgs">${ms.map(m=>`<div class="m ${m.r}">${m.t}${m.btns&&S.pend?`<div class="btns"><button class="btn ok" style="padding:8px" data-a="lyes">${S.pend.y}</button><button class="btn alt" style="padding:8px" data-a="lno">${S.pend.n}</button></div>`:''}</div>`).join('')}${S.busy?'<div class="m a">…</div>':''}</div>
+ <div class="chips">${qs.map(q=>`<button class="chip" data-a="q" data-q="${q}">${q}</button>`).join('')}</div>
+ <div class="ask"><input id="q" placeholder="${pr?'اكتب بخصوصية':'اسأل عن أي شيء يخص أسرتك'}" maxlength="200"><button data-a="send">➤</button></div>`},
+setup(){const st=S.ob,k=F.kids.length,stp=(m,p,v,lo,hi)=>`<div class="in2" style="gap:14px;flex:none"><button class="chip" style="width:46px;font-size:22px;${v<=lo?'opacity:.3':''}" ${v<=lo?'disabled':''} data-a="${m}">−</button><b style="font-size:24px;min-width:24px;text-align:center">${v}</b><button class="chip" style="width:46px;font-size:22px;${v>=hi?'opacity:.3':''}" ${v>=hi?'disabled':''} data-a="${p}">+</button></div>`;let b='';
+ if(st===0)b=`<h2>أخبرني عن أسرتك</h2><p class="sub">ثلاث خطوات سريعة فقط</p><div class="card"><div class="row"><b>الأطفال</b>${stp('kdec','kadd',k,0,8)}</div>
+ ${k?`<p class="sub" style="margin:14px 0 4px">أعمار الأطفال</p>${F.kids.map((x,i)=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--line)"><span>الطفل ${i+1}<br><small class="sub">${stage(x.age)}</small></span><div class="in2" style="gap:12px;flex:none"><button class="chip" style="width:42px;${x.age<=0?'opacity:.3':''}" ${x.age<=0?'disabled':''} data-a="agem" data-k="${i}">−</button><b style="min-width:84px;text-align:center">${ageTxt(x.age)}</b><button class="chip" style="width:42px;${x.age>=17?'opacity:.3':''}" ${x.age>=17?'disabled':''} data-a="agep" data-k="${i}">+</button></div></div>`).join('')}`:'<p class="sub" style="margin:12px 0 0">لا أطفال حاليًا — يمكنك إضافتهم بزر +.</p>'}
+ <p style="margin:12px 0 0;font-size:14px">👨‍👩‍👧‍👦 أسرة من <b>${F.adults+k}</b> أفراد <small class="sub">(الشريكان + ${k===0?'بلا أطفال':k===1?'طفل':k===2?'طفلان':k+' أطفال'})</small></p>${k&&k<8?'<button class="chip" style="margin-top:8px" data-a="kadd">+ إضافة عمر طفل</button>':''}</div>`;
+ if(st===1)b=`<h2>ما هو دخلكم الشهري تقريبًا؟</h2><p class="sub">رقم تقريبي يكفي</p><div class="card"><p class="sub" style="margin:0 0 6px">الدخل الشهري للأسرة</p><div class="in2"><input inputmode="numeric" data-f="approx" data-n="1" value="${F.approx?F.approx.toLocaleString('en-US'):''}" placeholder="180,000" ${F.skipInc?'disabled':''} style="font-size:22px!important;text-align:center"><b>دج</b></div><button class="chip" style="margin-top:12px;${F.skipInc?'background:var(--pri);color:#fff':''}" data-a="skipi">أفضل عدم الإجابة</button>${F.approx>0&&!F.skipInc?`<p class="sub" style="margin:10px 0 0">≈ ${money(F.approx/(F.adults+k))} للفرد الواحد (أسرة من ${F.adults+k} أفراد)</p>${F.approx/(F.adults+k)<8000?'<p style="color:var(--warn);font-size:13px;margin:4px 0 0">⚠️ يبدو الدخل منخفضًا مقارنة بحجم الأسرة — تأكد من الرقم.</p>':F.approx/(F.adults+k)>2000000?'<p style="color:var(--warn);font-size:13px;margin:4px 0 0">⚠️ يبدو الرقم كبيرًا — تأكد منه.</p>':''}`:''}<p class="sub" style="font-size:12px;margin:10px 0 0">يمكنك تعديل هذه المعلومات أو إخفاؤها لاحقًا.</p></div>`;
+ if(st===2)b=`<h2>ما أكثر الأشياء التي تنفقون عليها؟</h2><p class="sub">اختر ما ينطبق — بدون أرقام</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${[['السكن','🏠'],['الطعام','🍽️'],['الفواتير','🧾'],['النقل','🚌'],['الأطفال','🧒'],['التسوق','🛍️'],['الترفيه','🎬'],['أخرى','➕']].map(([n,i])=>`<button class="card" style="margin:0;padding:16px 8px;font-size:15px;font-weight:700;color:var(--ink);${F.cats.includes(n)?'border:2px solid var(--pri);background:var(--soft)':''}${n==='الأطفال'&&!k?';opacity:.35':''}" ${n==='الأطفال'&&!k?'disabled':''} data-a="cat" data-n="${n}">${F.cats.includes(n)?'☑':'☐'} ${i} ${n}</button>`).join('')}</div>${k&&!F.cats.includes('الأطفال')?'<p style="color:var(--pri);font-size:13px;margin:10px 0 0">💡 لديكم أطفال — أنصح بتحديد «الأطفال».</p>':''}${!k?'<p class="sub" style="font-size:12px;margin:10px 0 0">«الأطفال» غير متاحة لأنه لا يوجد أطفال في أسرتكم.</p>':''}<p class="sub" style="font-size:12px;margin-top:10px">يمكنك إضافة التفاصيل لاحقًا.</p>`;
+ if(st===3)b=`<h2>أصبحت أعرف الأساسيات عن أسرتك ❤️</h2><div class="card" style="margin-top:12px"><div class="item"><span>👨‍👩‍👧‍👦 الأسرة</span><b>${F.adults} بالغين • ${k===0?'بلا أطفال':k===1?'طفل':k===2?'طفلان':k+' أطفال'}</b></div><div class="item"><span>💰 الدخل التقريبي</span><b>${F.approx>0&&!F.skipInc?money(F.approx):'غير محدد'}</b></div><div class="item"><span>📊 أهم المصاريف</span><b>${F.cats.length?F.cats.join(' • '):'—'}</b></div></div>`;
+ return`<div class="bar" style="margin:4px 0 14px;height:8px"><i style="width:${(st+1)*25}%;background:var(--pri)"></i></div>${b}<div class="btns" style="margin-top:6px">${st?'<button class="btn alt" data-a="obprev">السابق</button>':''}${st<3?'<button class="btn" data-a="obnext">التالي</button>':'<button class="btn ok" data-a="obdone">ابدأ مع TogetherAI</button>'}</div>`},
+details(){const st=S.dstep,c=calc();
+ const nm=(p,v)=>`<input data-f="${p}" value="${esc(v)}">`,nu=(p,v,ph)=>`<input class="amt" inputmode="numeric" data-f="${p}" data-n="1" value="${(+v||0).toLocaleString('en-US')}" placeholder="${ph||'دج'}">`,vs=(p,v)=>`<select data-f="${p}">${Object.entries(VIS).map(([k,l])=>`<option value="${k}" ${v===k?'selected':''}>${l}</option>`).join('')}</select>`;
+ const row=(L,k,x,i,ex)=>!ok(x)?`<div class="item"><span>🔒 بند خاص بالشريك</span><span class="sub" style="margin:0">مشمول في الحساب</span></div>`:`<div class="card" style="padding:12px;margin-bottom:8px"><div class="in2">${nm(L+'.'+i+'.n',x.n)}${nu(L+'.'+i+'.amt',x.amt)}</div><div class="in2" style="margin-top:8px;justify-content:flex-end">${ex||''}</div></div>`;
+ let b='';
+ if(st===0)b=`<div class="card"><b>عدد البالغين</b><div class="chips">${[1,2,3,4].map(n=>`<button class="chip" style="${F.adults===n?'background:var(--pri);color:#fff':''}" data-a="adl" data-v="${n}">${n}</button>`).join('')}</div>
+ <b>الأطفال (${F.kids.length})</b>${F.kids.map((k,i)=>`<div class="in2" style="margin-top:8px">${nm('kids.'+i+'.n',k.n).replace('<input','<input placeholder="اسم أو لقب (اختياري)"')}<input class="amt" style="width:90px" inputmode="numeric" data-f="kids.${i}.age" data-n="1" value="${k.age}" placeholder="العمر"><button class="x" data-a="krm" data-k="${i}">✕</button></div>`).join('')}<button class="btn alt" data-a="kadd">+ إضافة طفل</button>
+ <div style="margin-top:14px"><b>السكن</b><div class="chips">${['ملك','إيجار','منزل عائلي','أخرى'].map(h=>`<button class="chip" style="${F.housing===h?'background:var(--pri);color:#fff':''}" data-a="house" data-v="${h}">${h}</button>`).join('')}</div></div></div>`;
+ if(st===1)b=`<div class="card"><div class="chips" style="margin:0 0 6px"><button class="chip" style="${F.mode==='approx'?'background:var(--pri);color:#fff':''}" data-a="mode2" data-v="approx">تقريبي${F.approx?' · '+money(F.approx):''}</button><button class="chip" style="${F.mode!=='approx'?'background:var(--pri);color:#fff':''}" data-a="mode2" data-v="detail">تفصيلي · ${money(sum(used(F.income)))}</button></div><p class="sub" style="margin:0 0 8px">اختر طريقة حساب دخل الأسرة.</p>${F.income.map((x,i)=>row('income',0,x,i,`<button class="x" data-a="idel" data-k="${i}">✕</button>`)).join('')}<button class="btn alt" data-a="iadd">+ مصدر دخل (قد يكون غير منتظم)</button><div class="row" style="margin-top:12px"><span>إجمالي الدخل الشهري</span><b style="font-size:20px">${money(c.income)}</b></div>${c.income?'':'<p style="color:var(--bad);font-size:13px;margin:8px 0 0">⚠️ أضف مصدر دخل واحدًا على الأقل ليعمل الحساب.</p>'}<p class="sub" style="font-size:12px;margin:6px 0 0">الإجمالي يشمل البنود المشتركة وبنود «الذكاء الاصطناعي فقط»، دون كشف الأرقام الفردية. بنود «أنا فقط» لا تدخل فيه.</p></div>`;
+ if(st===2)b=['ثابت','متغير'].map(cat=>`<div class="card"><b>${cat==='ثابت'?'المصاريف الثابتة':'المصاريف المتغيرة'}</b><div style="margin-top:8px">${F.exp.map((x,i)=>x.cat===cat?row('exp',0,x,i,`<button class="chip" data-a="erec" data-k="${i}">${x.rec?'متكرر':'مرة واحدة'}</button><button class="x" data-a="edel" data-k="${i}">✕</button>`):'').join('')}</div><button class="btn alt" data-a="eadd" data-c="${cat}">+ ${cat==='ثابت'?'مصروف ثابت':'مصروف أو فئة مخصصة'}</button></div>`).join('')+sug()+`<div class="card row"><span>إجمالي المصاريف</span><b>${money(c.exp)}</b></div>`;
+ if(st===3)b=`<div class="card"><div class="in2"><span style="flex:1">المدخرات الحالية</span>${nu('save.cur',F.save.cur)}</div><div class="in2" style="margin-top:8px"><span style="flex:1">الادخار الشهري المخطط</span>${nu('save.mo',F.save.mo)}</div></div>
+ ${F.goals.map((g,i)=>`<div class="card" style="padding:12px;margin-bottom:8px"><div class="in2">${nm('goals.'+i+'.n',g.n)}<button class="x" data-a="gdel" data-k="${i}">✕</button></div><div class="in2" style="margin-top:8px">${nu('goals.'+i+'.target',g.target,'الهدف')}${nu('goals.'+i+'.cur',g.cur,'الحالي')}${nu('goals.'+i+'.mo',g.mo,'شهريًا')}</div><div class="bar" style="height:8px;margin-top:8px"><i style="width:${gp(g)}%;background:var(--pri)"></i></div></div>`).join('')}
+ ${sum(F.goals.map(g=>({amt:g.mo})))>F.save.mo?'<p style="color:var(--warn);font-size:13px">⚠️ مجموع مساهمات الأهداف يتجاوز الادخار الشهري المخطط.</p>':''}<button class="btn alt" data-a="gnew">+ هدف مالي</button>
+ <div class="card" style="margin-top:12px"><div class="row"><span>المتبقي للمصاريف المرنة</span><b style="font-size:20px">${money(c.flex)}</b></div>${c.flex<0?'<p style="color:var(--bad);font-size:13px;margin:6px 0 0">⚠️ المصاريف والادخار يتجاوزان الدخل بمقدار '+money(-c.flex)+'. خفّض الادخار أو المصاريف.</p>':''}<p class="sub" style="margin:6px 0 0">${c.st[0]} ${c.st[1]} · نسبة الادخار ${(c.rate*100).toFixed(0)}%</p></div>`;
+ return`<div class="card" style="background:var(--soft);padding:12px;font-size:13px">اختياري بالكامل — كلما أضفتَ تفاصيل صارت إجابات TogetherAI أدق.</div><div class="sw" style="margin-bottom:12px;display:flex">${[[1,'الدخل'],[2,'المصاريف'],[3,'الادخار والأهداف']].map(([k,l])=>`<button style="flex:1" class="${st===k?'on':''}" data-a="dst" data-v="${k}">${l}</button>`).join('')}</div>${b}<button class="chip" style="margin-top:12px" data-a="reset">استعادة البيانات التجريبية</button>`}};
+function composer(){const d=S.draft,t=total(d);
+ return`<div class="card"><b>طلب جديد</b><div>${d.length?itemsList(d,true):'<div class="empty">أضف عناصر إلى طلبك</div>'}</div>
+ <div class="chips">${Object.keys(CATALOG).map(k=>`<button class="chip" data-a="add" data-n="${k}">+ ${k}</button>`).join('')}</div>
+ <div class="row" style="gap:6px"><input id="in" placeholder="عنصر آخر"><input id="pr" type="number" placeholder="دج" style="width:80px"><button class="chip" data-a="addc">إضافة</button></div>
+ <div class="row" style="margin-top:12px"><span>الإجمالي التقديري</span><b style="font-size:22px;color:${t>calc().flex?'var(--bad)':'inherit'}">${money(t)}</b></div><div class="row sub" style="margin:2px 0 0"><span>المتاح للمصاريف المرنة</span><span>${money(calc().flex)}</span></div>
+ ${S.review?`<div class="card" style="background:var(--soft);margin:12px 0 0;border-color:var(--warn)"><b>🤖 تنبيه</b><p style="font-size:14px;margin:6px 0">${S.review.msg}</p><div class="btns"><button class="btn" data-a="send_req">المتابعة رغم ذلك</button><button class="btn alt" data-a="review">مراجعة العناصر</button></div></div>`
+ :`<button class="btn" data-a="submit" ${d.length?'':'disabled'}>إرسال إلى ${USERS[USERS[S.user].other].name}</button>`}</div>`}
+/* ===== app shell ===== */
+function toast(t){try{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}catch(e){}}
+function render(){save();if(!F.done)S.tab='setup';const app=document.getElementById('app'),u=USERS[S.user];
+ const pend=S.req&&S.req.status==='waiting'&&S.req.from!==S.user;
+ app.innerHTML=`<div class="top"><span class="logo">TogetherAI ❤️ <button class="chip" data-a="tab" data-t="setup" style="margin-inline-start:4px">⚙️</button></span><div class="sw">${Object.keys(USERS).map(k=>`<button class="${S.user===k?'on':''}" data-a="user" data-u="${k}"><i class="av">${USERS[k].name[0]}</i>${USERS[k].name}</button>`).join('')}</div></div>
+ ${S.push&&pend?`<div class="push"><div class="row"><small>🔔 TogetherAI · الآن</small></div><b>طلب منزلي جديد</b><div style="font-size:14px;margin:2px 0 8px">وصلك طلب تسوّق من ${USERS[S.req.from].name}.<br>${S.req.items.map(i=>i.n).join('<br>')}<br><b>الإجمالي التقديري: ${money(total(S.req.items))}</b></div><div class="btns"><button class="btn ok" data-a="approve">موافقة</button><button class="btn bad" data-a="reject">رفض</button><button class="btn alt" style="background:#fff2" data-a="tab" data-t="shop">فتح</button></div></div>`:''}
+ ${(()=>{try{return screens[S.tab]()}catch(err){return'<div class="card"><b>⚠️ تعذّر عرض هذه الشاشة</b><p class="sub">'+err.message+'</p><button class="btn" data-a="reset">استعادة البيانات التجريبية</button></div>'}})()}
+ ${!F.done?'':`<div class="nav">${[['home','🏠','الرئيسية'],['shop','🛒','التسوّق'],['goals','🎯','الأهداف'],['budget','💰','الميزانية'],['ai','✨','المساعد']].map(([k,i,l])=>`<button class="${S.tab===k?'on':''}" data-a="tab" data-t="${k}"><span class="ni">${NI[k]}</span>${l}${k==='shop'&&pend?'<i class="dotn"></i>':''}</button>`).join('')}</div>`}`;
+ const m=app.querySelector('.msgs');if(S.tab==='ai'&&m)m.lastElementChild?.scrollIntoView({block:'end'})}
+function submit(){const t=total(S.draft),a=analyze(t);if(a.ok)sendReq(a);else{S.review=a;render()}}
+function sendReq(a){a=a||analyze(total(S.draft));S.req={from:S.user,items:S.draft,status:'waiting',stage:0,ai:a,time:new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})};S.log.unshift('🛒 طلب جديد من '+USERS[S.user].name);S.draft=[];S.review=null;S.composing=false;render();toast('✅ تم إرسال الطلب بنجاح')}
+async function ask(q){q=q.trim();if(!q||S.busy)return;const pr=S.aiMode==='private',L=pr?S.pm[S.user]:S.msgs;L.push({r:'u',t:q.replace(/</g,'&lt;')});const pp=learn(q);if(pp){S.pend=pp;L.push({r:'a',t:pp.t,btns:1});render();return}S.busy=true;render();
+ const t=await aiService.reply(q,{req:S.req,user:S.user,priv:pr});L.push({r:'a',t});S.busy=false;render()}
+const setP=(p,v)=>{const k=p.split('.');let o=F;k.slice(0,-1).forEach(x=>o=o[x]);o[k[k.length-1]]=v};
+const cap=()=>{const g=id=>document.getElementById(id);if(S.sheet&&S.sheet.d&&g('sn'))S.sheet.d={...S.sheet.d,n:g('sn').value,amt:g('sa').value,date:g('sd').value}};
+const fo=id=>setTimeout(()=>{const x=document.getElementById(id);x&&x.focus&&x.focus()},60);
+const A={badd0(){S.sheet={mode:'add',d:{n:'',amt:'',date:iso(new Date()),rec:'شهري'}};render();fo('sn')},bopen(e){S.sheet={mode:'view',k:+e.dataset.k};render()},
+ bedit(){const b=F.bills[S.sheet.k];S.sheet={mode:'edit',k:S.sheet.k,d:{n:b.n,amt:b.amt,date:b.date,rec:b.rec}};render();fo('sa')},bclose(){S.sheet=null;render()},
+ srec(e){cap();S.sheet.d.rec=e.dataset.v;render()},bdel0(){S.sheet={mode:'del',k:S.sheet.k};render()},
+ bsave(){cap();const d=S.sheet.d,amt=num(String(d.amt)),n=d.n.trim();if(!n||!amt||!d.date){toast('أكمل الاسم والمبلغ والتاريخ');return}
+  if(S.sheet.mode==='add'){const b={n,amt,date:d.date,rec:d.rec,cat:'فواتير'};F.bills.push(b);syncExp(b);S.log.unshift('🧾 فاتورة جديدة: '+n);toast('🧾 تم حفظ الفاتورة')}
+  else{const b=F.bills[S.sheet.k],old=b.n;Object.assign(b,{n,amt,date:d.date,rec:d.rec});syncExp(b,old);S.log.unshift('✏️ تم تعديل فاتورة '+n);toast('✅ تم حفظ التعديل')}S.sheet=null;render()},
+ bpay(){const b=F.bills[S.sheet.k],t=new Date();t.setHours(0,0,0,0);b.lastPaid=iso(t);
+  if(b.rec==='مرة واحدة')b.paid=true;else{let d=new Date(b.date+'T00:00:00'),n=0;do{b.rec==='أسبوعي'?d.setDate(d.getDate()+7):d.setMonth(d.getMonth()+1);n++}while(d<=t&&n<60);b.date=iso(d)}
+  S.log.unshift('✅ تم دفع '+b.n);S.sheet=null;render();toast('✅ تم تسجيل الدفع')},
+ bdel(){const b=F.bills[S.sheet.k];if(b.link)F.exp=F.exp.filter(x=>x.n!==b.n);F.bills.splice(S.sheet.k,1);S.sheet=null;render();toast('🗑️ تم حذف الفاتورة')},adm(){F.adults=Math.max(2,F.adults-1);render()},adp(){F.adults=Math.min(6,F.adults+1);render()},kdec(){F.kids.pop();if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال');render()},agem(e){const x=F.kids[+e.dataset.k];x.age=Math.max(0,x.age-1);render()},agep(e){const x=F.kids[+e.dataset.k];x.age=Math.min(17,x.age+1);render()},
+ cat(e){const n=e.dataset.n;F.cats=F.cats.includes(n)?F.cats.filter(x=>x!==n):[...F.cats,n];render()},skipi(){F.skipInc=!F.skipInc;render()},
+ obnext(){S.ob=Math.min(3,S.ob+1);render()},obprev(){S.ob=Math.max(0,S.ob-1);render()},
+ obdone(){if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال');if(F.approx>0&&!F.skipInc)F.mode='approx';F.done=true;S.ob=0;S.tab='home';S.log.unshift('🏡 تم إعداد الأسرة');render();toast('أهلًا بك في TogetherAI ❤️')},
+ coach(){F.coach=false;S.tab='budget';S.bt='dt';render()},coachno(){F.coach=false;render()},
+ fv(e){F.fv=F.fv||{};F.fv[S.user]=e.dataset.v;F.income.forEach(x=>{if(x.owner===S.user)x.vis=e.dataset.v});render();toast('🔒 تم تحديث خصوصية معلوماتك المالية')},
+ esug(e){F.exp.push({n:e.dataset.n,amt:0,cat:e.dataset.c,rec:true,vis:'shared',owner:S.user});render()},dst(e){S.dstep=+e.dataset.v;render()},mode2(e){F.mode=e.dataset.v;render()},
+ lyes(){const p=S.pend;if(!p)return;S.pend=null;[...S.msgs,...S.pm.sarah,...S.pm.ahmed].forEach(m=>delete m.btns);p.apply();(S.aiMode==='private'?S.pm[S.user]:S.msgs).push({r:'a',t:'تم ✅ '+p.ok});render();toast('✅ تم الحفظ')},
+ lno(){S.pend=null;[...S.msgs,...S.pm.sarah,...S.pm.ahmed].forEach(m=>delete m.btns);(S.aiMode==='private'?S.pm[S.user]:S.msgs).push({r:'a',t:'حسنًا، لن أحفظ ذلك.'});render()},go(e){S.sheet=null;S.tab=e.dataset.t;if(e.dataset.b)S.bt=e.dataset.b;if(e.dataset.c)S.composing=true;if(e.dataset.g)S.addG=true;S.push=false;render()},bt(e){S.sheet=null;S.bt=e.dataset.v;render()},adl(e){F.adults=+e.dataset.v;render()},kadd(){if(F.kids.length>=8)return;F.kids.push({n:'',age:F.kids.length?F.kids[F.kids.length-1].age:5});if(F.kids.length===1&&!F.cats.includes('الأطفال'))F.cats.push('الأطفال');render()},krm(e){F.kids.splice(+e.dataset.k,1);render()},house(e){F.housing=e.dataset.v;render()},
+ iadd(){F.income.push({n:'دخل غير منتظم',amt:0,vis:curVis(),owner:S.user});render()},idel(e){F.income.splice(+e.dataset.k,1);render()},
+ eadd(e){F.exp.push({n:'مصروف جديد',amt:0,cat:e.dataset.c,rec:true,vis:'shared',owner:S.user});render()},edel(e){F.exp.splice(+e.dataset.k,1);render()},erec(e){const x=F.exp[+e.dataset.k];x.rec=!x.rec;render()},
+ gnew(){F.goals.push({i:'🎯',n:'هدف جديد',target:100000,cur:0,mo:0});render()},gdel(e){F.goals.splice(+e.dataset.k,1);render()},
+ snext(){S.step++;render()},sprev(){S.step--;render()},sdone(){F.done=true;S.step=0;S.tab='home';S.log.unshift('🏡 اكتمل إعداد الأسرة');render();toast('🏡 تم حفظ إعداد الأسرة')},
+ reset(){try{localStorage.removeItem('tg2')}catch(e){}location.reload()},plan(){S.plan=!S.plan;render()},wk(e){S.wk=e.dataset.k;if(S.sim)S.sim.k=S.wk;render()},wq(e){S.wt=+e.dataset.v;S.sim={k:S.wk,a:+e.dataset.v};render()},
+ wcalc(){const a=num(document.getElementById('wa').value);if(a){S.wt=a;S.sim={k:S.wk,a};render()}},wclose(){S.sim=null;render()},
+ wapply(){S.spentExtra+=S.sim.a;S.log.unshift('💰 تم تسجيل مصروف بقيمة '+money(S.sim.a));S.sim=null;render();toast('💰 تم تسجيل المصروف')},
+ badd(){const n=document.getElementById('bn').value.trim(),a=num(document.getElementById('ba').value),d=Math.min(28,num(document.getElementById('bd').value)||1);if(n&&a){F.bills.push({n,amt:a,day:d,rec:document.getElementById('br').value,cat:document.getElementById('bc').value});S.log.unshift('🧾 فاتورة جديدة: '+n);render();toast('🧾 تمت إضافة الفاتورة')}},rv(){S.showP=!S.showP;render()},dis(){S.dis[S.user]=true;render()},mode(e){S.aiMode=e.dataset.m;render()},ag(){S.addG=true;render()},
+ gadd(){const n=document.getElementById('gn').value.trim(),t=num(document.getElementById('gt').value),c=num(document.getElementById('gc').value);if(!n||!t)return;F.goals.push({i:'🎯',n,target:t,cur:Math.min(c,t),mo:Math.max(1000,Math.round((t-c)/12/1000)*1000)});S.log.unshift('🎯 هدف جديد: '+n);S.addG=false;render();toast('🎯 تمت إضافة الهدف')},
+ wi(){const v=document.getElementById('wi').value;S.wt=v;const x=v.replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).match(/\d[\d,]*/);if(x){S.sim={a:+x[0].replace(/,/g,'')};render()}},
+ wbuy(){S.spentExtra+=S.sim.a;S.log.unshift('💰 تم تسجيل مصروف بقيمة '+money(S.sim.a));S.sim=null;S.wt='';render()},wno(){S.sim=null;S.wt='';render()},wedit(){S.sim=null;render();setTimeout(()=>document.getElementById('wa')?.focus())},
+ user(e){S.user=e.dataset.u;S.push=true;S.review=null;if(S.req&&S.req.status==='waiting'&&S.req.from!==S.user)S.tab='home';render()},
+ tab(e){S.sheet=null;S.tab=e.dataset.t;S.push=false;render()},
+ add(e){S.draft=[...S.draft,{n:e.dataset.n,p:CATALOG[e.dataset.n]}];S.review=null;render()},
+ addc(){const n=document.getElementById('in').value.trim(),p=+document.getElementById('pr').value||1000;if(n){S.draft=[...S.draft,{n,p}];S.review=null;render()}},
+ rm(e){S.draft=S.draft.filter((_,i)=>i!=e.dataset.k);S.review=null;render()},
+ submit,send_req(){sendReq(S.review)},review(){S.review=null;render()},
+ approve(){S.log.unshift('✅ تمت الموافقة على الطلب');S.req.status='approved';S.req.stage=0;S.push=false;S.tab='shop';render();toast('✅ تمت الموافقة على الطلب')},
+ reject(){S.log.unshift('❌ تم رفض الطلب');S.req.status='rejected';S.push=false;render()},
+ adv(){S.req.stage++;if(S.req.stage===3){S.spentExtra+=total(S.req.items);S.log.unshift('💰 تم التسليم وتحديث الميزانية');toast('📦 تم التسليم وتحديث الميزانية')}render()},
+ new(){S.composing=true;render()},
+ q(e){ask(e.dataset.q)},send(){ask(document.getElementById('q').value)}};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el)A[el.dataset.a](el)});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q')ask(e.target.value);if(e.key==='Enter'&&e.target.id==='wa')A.wcalc()});
+document.addEventListener('change',e=>{const p=e.target.dataset&&e.target.dataset.f;if(!p)return;setP(p,e.target.dataset.n?num(e.target.value):e.target.value);fix(p);render()});
+render();
+</script></body></html>
