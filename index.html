@@ -109,6 +109,7 @@ input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4
 .verdict{padding:10px 14px;border-radius:14px;font-weight:800;font-size:16px;margin-bottom:6px}.verdict.ok{background:rgba(47,158,107,.16);color:var(--ok)}.verdict.risky{background:rgba(224,162,27,.16);color:var(--warn)}.verdict.no{background:rgba(214,69,69,.16);color:var(--bad)}
 .sw button{white-space:nowrap;font-size:14px;padding:6px 10px}
 .gate{max-width:420px;margin:0 auto;animation:up .4s both}.code{font-size:30px;letter-spacing:3px;font-weight:800;text-align:center;direction:ltr;padding:16px;margin:10px 0;border-radius:16px;background:var(--soft);user-select:all}.err{color:var(--bad);font-size:14px;margin:6px 0 0;line-height:1.6}
+.m.p{align-self:flex-start;background:var(--soft);border:1px solid var(--line);border-bottom-left-radius:6px}.who{display:block;font-size:11px;font-weight:700;color:var(--pri);margin-bottom:2px}
 </style></head><body><div id="app"></div>
 <script>
 /* ===== data/ ===== */
@@ -136,8 +137,8 @@ function normB(b){if(!b.date){const t=new Date(),t0=new Date(t.getFullYear(),t.g
  if(!['شهري','أسبوعي','مرة واحدة'].includes(b.rec))b.rec='شهري';if(b.link===undefined)b.link=b.rec!=='مرة واحدة'&&F.exp.some(x=>x.n===b.n)}
 function afterLoad(){F.bills.forEach(normB);F.adults=2;F.kids.forEach(k=>k.age=Math.min(17,Math.max(0,+k.age||0)));if(!F.kids.length)F.cats=F.cats.filter(c=>c!=='الأطفال')}
 const LSK=()=>S.me?'tg3:'+S.me.id:null;
-function save(){const k=LSK();if(!k)return;try{localStorage.setItem(k,JSON.stringify({F,req:S.req,x:S.spentExtra,log:S.log,pm:S.pm,facts:S.facts}))}catch(e){}}
-function loadLocal(){const k=LSK();F=newF();S.req=null;S.spentExtra=0;S.pm={};S.facts={};S.log=['🏡 مرحبًا بك في TogetherAI'];if(k){try{const d=JSON.parse(localStorage.getItem(k));if(d&&d.F){F=d.F;S.req=d.req||null;S.spentExtra=d.x||0;S.log=d.log||S.log;S.pm=d.pm||{};S.facts=d.facts||{}}}catch(e){}}afterLoad()}
+function save(){const k=LSK();if(!k)return;try{localStorage.setItem(k,JSON.stringify({F,x:S.spentExtra,log:S.log,facts:S.facts,cnt:S.cnt}))}catch(e){}}
+function loadLocal(){const k=LSK();F=newF();S.req=null;S.draft=[];S.spentExtra=0;S.cnt={};S.pm={};S.facts={};S.log=['🏡 مرحبًا بك في TogetherAI'];if(k){try{const d=JSON.parse(localStorage.getItem(k));if(d&&d.F){F=d.F;S.spentExtra=d.x||0;S.log=d.log||S.log;S.facts=d.facts||{};S.cnt=d.cnt||{}}}catch(e){}}afterLoad()}
 const pmOf=()=>S.pm[S.user]||(S.pm[S.user]=[{r:'a',t:'مرحبًا! هذه المحادثة خاصة بك ولن تُعرض لشريكك.'}]);const fct=u=>S.facts[u]||(S.facts[u]={});
 /* ===== services/ finance + aiService ===== */
 const used=a=>a.filter(x=>x.vis!=='me'),sum=a=>a.reduce((t,x)=>t+(+x.amt||0),0);
@@ -162,6 +163,7 @@ function simulate(k,a){const c=calc(),nf=c.flex-a,short=Math.max(0,-nf),v=nf<0?'
  const ns=Math.max(0,c.save-short),inc=c.income-(k==='inc'?a:0);
  return{c,nf,short,v,ns,rate:inc?ns/inc:0,goalTxt:!F.goals.length?'لا توجد أهداف مالية بعد':m<=.05?'لا أثر على أهدافكم':'قد يتأخر هدف '+g.n+' بحوالي '+dly(m)}}
 function analyze(total){const c=calc(),pct=c.flex>0?Math.round(total/c.flex*100):999;
+ if(!c.income)return{ok:true,pct:0,msg:'💡 لم تُدخلوا دخل الأسرة بعد، لذلك لا يمكن تقدير أثر هذا الطلب على الميزانية.'};
  if(total>c.flex)return{ok:false,pct,msg:`هذه المشتريات تتجاوز الميزانية المرنة المتبقية لهذا الشهر بحوالي ${money(total-Math.max(c.flex,0))}.`};
  return{ok:true,pct,msg:pct>40?`⚠️ هذا الطلب يستهلك ${pct}% من الميزانية المرنة وقد يؤثر على هدف ${G0().n}.`:`💡 هذا الطلب يستهلك ${pct}% من الميزانية المرنة المتبقية.`}}
 const kidsNote=()=>{const a=F.kids.map(k=>+k.age);if(!a.length)return'';const sch=a.filter(x=>x>=5&&x<=17).length,sm=a.filter(x=>x<5).length;return[sch?`لديكم ${sch} في سن الدراسة، فضعوا في الحسبان المستلزمات المدرسية والملابس`:'',sm?'وجود طفل صغير يعني أن مصاريف الغذاء والرعاية قد تتغيّر بسرعة':''].filter(Boolean).join('، و')+'.'};
@@ -260,13 +262,13 @@ home(){const u=USERS[S.user],c=calc(),h=new Date().getHours(),g=h<12?'صباح �
  ${(()=>{const mb=monthBills(),nx=upBills()[0];return`<div class="card"><b>📋 الفواتير القادمة</b><p class="sub" style="margin:6px 0 0">${mb.length?`لديكم ${mb.length} فواتير بقيمة ${money(sum(mb))} هذا الشهر.${nx?` أقربها: ${nx.n} — ${dueTxt(nx)}.`:''}`:'لا توجد فواتير هذا الشهر.'}</p><button class="btn alt" data-a="go" data-t="budget" data-b="bl">عرض الفواتير</button></div>`})()}
  <div class="card"><b>🎯 أهداف الأسرة</b>${F.goals.slice(0,3).map(g=>`<div style="margin-top:10px"><div class="row" style="font-size:14px"><span>${g.i} ${g.n}</span><span>${gp(g)}%</span></div><div class="bar" style="height:8px;margin-top:4px"><i style="width:${gp(g)}%;background:var(--pri)"></i></div></div>`).join('')}</div>
  <div class="card"><b>آخر نشاط</b>${S.log.slice(0,4).map(x=>`<div class="item" style="font-size:14px">${x}</div>`).join('')}</div>${privacyCard()}`},
-shop(){const r=S.req,me=S.user;let h='<h2>التسوّق</h2><p class="sub">طلبات المنزل</p>';
+shop(){const r=S.req,me=S.user;let h='<h2>التسوّق</h2><p class="sub">طلبات المنزل</p>'+syncBar();
  if(r){const t=total(r.items),a=r.ai,pend=r.status==='waiting'&&r.from!==me;
   h+=`<div class="card"><div class="row"><b>🏠 طلب منزلي</b>${badge(r)}</div><div class="sub" style="margin:4px 0 8px">بواسطة ${USERS[r.from].name} · ${r.time}</div>${itemsList(r.items,false,S.showP||!pend)}
   <div class="row" style="margin-top:8px"><span>الإجمالي التقديري</span><b style="font-size:22px">${money(t)}</b></div><div class="row" style="margin-top:4px"><span class="sub" style="margin:0">أثر الميزانية</span><b>${a.pct}% من المتاح</b></div>
   <div class="card" style="background:var(--soft);margin:10px 0 0;padding:12px;font-size:13px;line-height:1.6"><b>🤖 توصية TogetherAI</b><br>${a.msg}</div>
   ${pend?`<div class="btns"><button class="btn ok" data-a="approve">موافقة</button><button class="btn bad" data-a="reject">رفض</button></div><button class="btn alt" data-a="rv">${S.showP?'إخفاء الأسعار':'مراجعة العناصر'}</button>`
-  :r.status==='waiting'?'<p class="sub" style="margin:10px 0 0">✅ تم إرسال الطلب بنجاح. بانتظار '+USERS[USERS[me].other].name+'.</p>':r.status==='approved'?'<p class="sub" style="margin:10px 0 0">تمت الموافقة على الطلب.</p>':'<p class="sub" style="margin:10px 0 0">تم رفض الطلب.</p>'}</div>`;
+  :r.status==='waiting'?'<p class="sub" style="margin:10px 0 0">✅ تم إرسال الطلب بنجاح. بانتظار '+USERS[USERS[me].other].name+'.</p><button class="chip" data-a="rcancel">إلغاء الطلب</button>':r.status==='approved'?'<p class="sub" style="margin:10px 0 0">تمت الموافقة على الطلب.</p>':'<p class="sub" style="margin:10px 0 0">تم رفض الطلب.</p>'}</div>`;
   if(r.status==='approved')h+=tracker(r);
   if(r.status!=='waiting')h+=`<button class="btn alt" data-a="new">+ طلب جديد</button>`}
  if(!r||(r.status!=='waiting'&&S.composing))h+=composer();return h},
@@ -321,20 +323,16 @@ function composer(){const d=S.draft,t=total(d);
  <div class="row" style="gap:6px"><input id="in" placeholder="عنصر آخر"><input id="pr" type="number" placeholder="دج" style="width:80px"><button class="chip" data-a="addc">إضافة</button></div>
  <div class="row" style="margin-top:12px"><span>الإجمالي التقديري</span><b style="font-size:22px;color:${t>calc().flex?'var(--bad)':'inherit'}">${money(t)}</b></div><div class="row sub" style="margin:2px 0 0"><span>المتاح للمصاريف المرنة</span><span>${money(calc().flex)}</span></div>
  ${S.review?`<div class="card" style="background:var(--soft);margin:12px 0 0;border-color:var(--warn)"><b>🤖 تنبيه</b><p style="font-size:14px;margin:6px 0">${S.review.msg}</p><div class="btns"><button class="btn" data-a="send_req">المتابعة رغم ذلك</button><button class="btn alt" data-a="review">مراجعة العناصر</button></div></div>`
- :`<button class="btn" data-a="submit" ${d.length?'':'disabled'}>إرسال إلى ${USERS[USERS[S.user].other].name}</button>`}</div>`}
+ :`<button class="btn" data-a="submit" ${d.length&&partnerOk()&&!S.sending?'':'disabled'}>${S.sending?'جارٍ الإرسال…':'إرسال إلى '+USERS[USERS[S.user].other].name}</button>${partnerOk()?'':'<p class="sub" style="margin:8px 0 0">ادعُ شريكك للانضمام أولًا؛ لا يمكنك الموافقة على طلبك بنفسك.</p>'}`}</div>`}
 /* ===== app shell ===== */
 function toast(t){try{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}catch(e){}}
 function render(){if(S.gate)return renderGate();save();if(!F.done&&S.tab!=='account')S.tab='setup';const app=document.getElementById('app'),u=USERS[S.user];
  const pend=S.req&&S.req.status==='waiting'&&S.req.from!==S.user;
- app.innerHTML=`<div class="top"><span class="logo">TogetherAI ❤️ <button class="chip" data-a="tab" data-t="setup" style="margin-inline-start:4px">⚙️</button></span><div class="sw"><button class="on" data-a="tab" data-t="account"><i class="av">${S.me?escH([...S.me.name][0]||'?'):'?'}</i>${u.name}</button></div></div>
+ const _k=keepIn();app.innerHTML=`<div class="top"><span class="logo">TogetherAI ❤️ <button class="chip" data-a="tab" data-t="setup" style="margin-inline-start:4px">⚙️</button></span><div class="sw"><button class="on" data-a="tab" data-t="account"><i class="av">${S.me?escH([...S.me.name][0]||'?'):'?'}</i>${u.name}</button></div></div>
  ${S.push&&pend?`<div class="push"><div class="row"><small>🔔 TogetherAI · الآن</small></div><b>طلب منزلي جديد</b><div style="font-size:14px;margin:2px 0 8px">وصلك طلب تسوّق من ${USERS[S.req.from].name}.<br>${S.req.items.map(i=>i.n).join('<br>')}<br><b>الإجمالي التقديري: ${money(total(S.req.items))}</b></div><div class="btns"><button class="btn ok" data-a="approve">موافقة</button><button class="btn bad" data-a="reject">رفض</button><button class="btn alt" style="background:#fff2" data-a="tab" data-t="shop">فتح</button></div></div>`:''}
  ${(()=>{try{return screens[S.tab]()}catch(err){return'<div class="card"><b>⚠️ تعذّر عرض هذه الشاشة</b><p class="sub">'+err.message+'</p><button class="btn" data-a="reset">استعادة البيانات التجريبية</button></div>'}})()}
- ${!F.done?'':`<div class="nav">${[['home','🏠','الرئيسية'],['shop','🛒','التسوّق'],['goals','🎯','الأهداف'],['budget','💰','الميزانية'],['ai','✨','المساعد']].map(([k,i,l])=>`<button class="${S.tab===k?'on':''}" data-a="tab" data-t="${k}"><span class="ni">${NI[k]}</span>${l}${k==='shop'&&pend?'<i class="dotn"></i>':''}</button>`).join('')}</div>`}`;
- const m=app.querySelector('.msgs');if(S.tab==='ai'&&m)m.lastElementChild?.scrollIntoView({block:'end'})}
-function submit(){const t=total(S.draft),a=analyze(t);if(a.ok)sendReq(a);else{S.review=a;render()}}
-function sendReq(a){a=a||analyze(total(S.draft));S.req={from:S.user,items:S.draft,status:'waiting',stage:0,ai:a,time:new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})};S.log.unshift('🛒 طلب جديد من '+USERS[S.user].name);S.draft=[];S.review=null;S.composing=false;render();toast('✅ تم إرسال الطلب بنجاح')}
-async function ask(q){q=q.trim();if(!q||S.busy)return;const pr=S.aiMode==='private',L=pr?pmOf():S.msgs;L.push({r:'u',t:q.replace(/</g,'&lt;')});const pp=learn(q);if(pp){S.pend=pp;L.push({r:'a',t:pp.t,btns:1});render();return}S.busy=true;render();
- const t=await aiService.reply(q,{req:S.req,user:S.user,priv:pr});L.push({r:'a',t});S.busy=false;render()}
+ ${!F.done?'':`<div class="nav">${[['home','🏠','الرئيسية'],['shop','🛒','التسوّق'],['goals','🎯','الأهداف'],['budget','💰','الميزانية'],['ai','✨','المساعد']].map(([k,i,l])=>`<button class="${S.tab===k?'on':''}" data-a="tab" data-t="${k}"><span class="ni">${NI[k]}</span>${l}${(k==='shop'&&pend)||(k==='ai'&&S.unread)?'<i class="dotn"></i>':''}</button>`).join('')}</div>`}`;
+ restoreIn(_k);const m=app.querySelector('.msgs');if(S.tab==='ai'&&m)m.lastElementChild?.scrollIntoView({block:'end'})}
 const setP=(p,v)=>{const k=p.split('.');let o=F;k.slice(0,-1).forEach(x=>o=o[x]);o[k[k.length-1]]=v};
 const cap=()=>{const g=id=>document.getElementById(id);if(S.sheet&&S.sheet.d&&g('sn'))S.sheet.d={...S.sheet.d,n:g('sn').value,amt:g('sa').value,date:g('sd').value}};
 const fo=id=>setTimeout(()=>{const x=document.getElementById(id);x&&x.focus&&x.focus()},60);
@@ -399,6 +397,13 @@ function msgOf(e){const c=String((e&&e.code)||''),m=String((e&&e.message)||''),t
  if(/household_full/.test(t))return 'اكتمل عدد أعضاء الأسرة (شريكان).';
  if(/forbidden/.test(t))return 'هذا الإجراء متاح لمالك الأسرة فقط.';
  if(/violates check constraint|char_length/i.test(t))return 'القيمة المدخلة غير صالحة (الطول غير مقبول).';
+ if(/self_approval_not_allowed/.test(t))return 'لا يمكنك الموافقة على طلبك أنت؛ الموافقة من شريكك.';
+ if(/not_pending/.test(t))return 'تم البتّ في هذا الطلب بالفعل.';
+ if(/invalid_items/.test(t))return 'تغيّرت عناصر القائمة؛ تم تحديثها. راجعها وأعد المحاولة.';
+ if(/cannot_advance/.test(t))return 'لا يمكن تقديم حالة هذا الطلب الآن.';
+ if(/cannot_cancel/.test(t))return 'لا يمكن إلغاء هذا الطلب الآن.';
+ if(/not_found|no_household/.test(t))return 'العنصر المطلوب غير موجود أو لا تملك صلاحية الوصول إليه.';
+ if(/row-level security|permission denied/i.test(t))return 'لا تملك صلاحية تنفيذ هذا الإجراء.';
  if(/Failed to fetch|NetworkError|network|fetch/i.test(t))return 'تعذّر الاتصال بالخادم. تحقق من الإنترنت وحاول مجددًا.';
  return 'حدث خطأ غير متوقع. حاول مرة أخرى.'}
 const JOIN_ERR={invalid_or_expired:'الرمز غير صحيح أو منتهي الصلاحية أو سبق استخدامه.',rate_limited:'محاولات خاطئة كثيرة. انتظر 15 دقيقة ثم حاول مجددًا.',already_member:'أنت عضو في أسرة بالفعل.',household_full:'اكتمل عدد أعضاء هذه الأسرة.'};
@@ -420,8 +425,8 @@ async function loadHousehold(){const m=await sb.from('household_members').select
  const ps=await sb.from('profiles').select('id,display_name').in('id',ms.data.map(x=>x.user_id));if(ps.error)throw ps.error;
  S.hh={id:h.data.id,name:h.data.name,role:m.data.role,members:ms.data.map(x=>({id:x.user_id,role:x.role,name:((ps.data||[]).find(p=>p.id===x.user_id)||{}).display_name||'عضو'}))};setUsers()}
 async function onSession(sess){const u=sess&&sess.user;if(!u)return;if(S.sessUid===u.id&&!S.gate)return;S.sessUid=u.id;S.gate='loading';S.err='';render();
- try{await ensureProfile(u);await loadHousehold();S.user=u.id;loadLocal();S.gate=S.hh?null:'household';S.tab='home'}catch(e){S.err=msgOf(e);S.gate='error'}render()}
-function onSignedOut(){S.sessUid=null;S.me=null;S.hh=null;S.inv=null;S.user=null;setUsers();F=newF();S.req=null;S.spentExtra=0;S.pm={};S.facts={};S.draft=[];S.log=['🏡 مرحبًا بك في TogetherAI'];S.tab='home';S.mode='login';S.err='';S.busy2=false;S.gate='auth';render()}
+ try{await ensureProfile(u);await loadHousehold();S.user=u.id;loadLocal();S.gate=S.hh?null:'household';S.tab='home';if(S.hh)await firstLoad()}catch(e){S.err=msgOf(e);S.gate='error'}render()}
+function onSignedOut(){stopSync();S.local={shared:[],private:[]};S.cnt={};S.db=freshDb();S.push=false;S.unread=false;S.sessUid=null;S.me=null;S.hh=null;S.inv=null;S.user=null;setUsers();F=newF();S.req=null;S.spentExtra=0;S.pm={};S.facts={};S.draft=[];S.log=['🏡 مرحبًا بك في TogetherAI'];S.tab='home';S.mode='login';S.err='';S.busy2=false;S.gate='auth';render()}
 async function boot(){S.gate='loading';render();const c=window.TG_CONFIG;
  if(!c||!c.url||!c.key||/YOUR-/.test(String(c.url)+String(c.key))){S.gate='config';return render()}
  if(!(await loadLib())){S.gate='lib';return render()}
@@ -466,21 +471,117 @@ Object.assign(A,{
   if(!name||name.length>60){S.err='أدخل اسمًا للأسرة (1 إلى 60 حرفًا).';return render()}
   S.busy2=true;S.err='';render();const r=await sb.rpc('create_household',{p_name:name});
   if(r.error){S.busy2=false;S.err=msgOf(r.error);return render()}
-  await loadHousehold();const i=await sb.rpc('create_invite',{p_ttl_hours:48});S.busy2=false;S.inv=i.error?null:i.data;S.gate='invite';render()})},
+  await loadHousehold();await firstLoad();const i=await sb.rpc('create_invite',{p_ttl_hours:48});S.busy2=false;S.inv=i.error?null:i.data;S.gate='invite';render()})},
  join(){return guard(async()=>{const code=val('g-code');S.f={...S.f,code};
   if(code.replace(/[^A-Za-z0-9]/g,'').length<8){S.err='أدخل رمز الدعوة كاملًا.';return render()}
   S.busy2=true;S.err='';render();const r=await sb.rpc('join_household',{p_code:code});S.busy2=false;
   if(r.error){S.err=msgOf(r.error);return render()}
   if(!r.data||!r.data.ok){S.err=JOIN_ERR[r.data&&r.data.error]||'تعذّر الانضمام. حاول مرة أخرى.';return render()}
-  await loadHousehold();S.gate=null;S.tab='home';toast('🏡 انضممت إلى الأسرة');render()})},
+  await loadHousehold();await firstLoad();S.gate=null;S.tab='home';toast('🏡 انضممت إلى الأسرة');render()})},
  toapp(){S.gate=null;S.tab='home';render()},
  mkinv(){return guard(async()=>{S.err='';S.busy2=true;render();const r=await sb.rpc('create_invite',{p_ttl_hours:48});S.busy2=false;
   if(r.error)S.err=msgOf(r.error);else S.inv=r.data;render()})},
  copyinv(){const c=S.inv&&S.inv.code;if(!c)return;try{navigator.clipboard.writeText(c).then(()=>toast('تم نسخ الرمز ✅'),()=>toast('انسخ الرمز يدويًا'))}catch(e){toast('انسخ الرمز يدويًا')}},
- refresh(){return guard(async()=>{await loadHousehold();render()})}
+ refresh(){return guard(async()=>{await loadHousehold();S.db.sig='';S.db.csig='';await refreshAll();render()})}
 });
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'||!S.gate)return;const id=e.target&&e.target.id;
  if(id==='g-pass'||id==='g-email'||id==='g-name')A[S.mode==='signup'?'signup':'login']();else if(id==='g-code')A.join();else if(id==='g-hname')A.mkhh()});
+
+/* ===== shared household data (Supabase): shopping list, purchase requests, chat ===== */
+const freshDb=()=>({listId:null,sig:'',csig:'',msgs:{shared:[],private:[]},err:'',rt:'idle',seenReq:null,chatInit:false,tick:0});
+S.db=freshDb();S.local={shared:[],private:[]};S.cnt={};S.unread=false;
+const RST={approved:0,preparing:1,ready:2,delivered:3};
+const partnerOk=()=>!!(S.hh&&S.hh.members.length>=2);
+function nameOf(uid){const m=S.hh&&S.hh.members.find(x=>x.id===uid);return m?m.name:'الشريك'}
+function syncBar(){return S.db.err?`<p class="err" style="margin:0 0 10px">⚠️ ${escH(S.db.err)} — تتم إعادة المحاولة تلقائيًا.</p>`:''}
+function mapReq(r,items){const its=items.filter(i=>i.request_id===r.id).map(i=>({n:escH(i.name),p:Number(i.est_price)*Number(i.quantity)})),t=its.reduce((a,x)=>a+x.p,0);
+ return{id:r.id,from:r.requested_by,items:its,status:r.status==='pending'?'waiting':r.status==='approved'?'approved':'rejected',stage:r.stage?RST[r.stage]:0,ai:analyze(t),time:new Date(r.created_at).toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'})}}
+async function refreshShop(){if(!sb||!S.hh)return false;
+ if(!S.db.listId){const l=await sb.from('shopping_lists').select('id').eq('is_default',true).maybeSingle();if(l.error)throw l.error;if(l.data)S.db.listId=l.data.id}
+ const [it,rq]=await Promise.all([sb.from('shopping_items').select('id,name,quantity,est_price,status,request_id,created_at').order('created_at',{ascending:true}).limit(300),
+  sb.from('purchase_requests').select('id,requested_by,status,stage,estimated_total,created_at').order('created_at',{ascending:false}).limit(20)]);
+ if(it.error)throw it.error;if(rq.error)throw rq.error;
+ const sig=JSON.stringify([it.data,rq.data]);if(sig===S.db.sig)return false;S.db.sig=sig;
+ const items=it.data||[],reqs=rq.data||[];
+ S.draft=items.filter(i=>i.status==='open').map(i=>({id:i.id,n:escH(i.name),p:Number(i.est_price)*Number(i.quantity)}));
+ const cur=reqs.find(r=>r.status!=='cancelled');S.req=cur?mapReq(cur,items):null;
+ if(S.req&&S.req.status==='waiting'&&S.req.from!==S.user&&S.db.seenReq!==S.req.id){S.push=true;toast('🔔 طلب منزلي جديد من '+nameOf(S.req.from))}
+ S.db.seenReq=S.req?S.req.id:null;
+ const mo=new Date().getMonth();reqs.filter(r=>r.stage==='delivered'&&!S.cnt[r.id]&&new Date(r.created_at).getMonth()===mo).forEach(r=>{S.cnt[r.id]=1;S.spentExtra+=Number(r.estimated_total);S.log.unshift('💰 تم التسليم وتحديث الميزانية')});
+ return true}
+async function refreshChat(){if(!sb||!S.hh)return false;
+ const r=await sb.from('ai_messages').select('id,user_id,scope,role,content,created_at').order('created_at',{ascending:false}).limit(300);if(r.error)throw r.error;
+ const sig=JSON.stringify(r.data);if(sig===S.db.csig)return false;S.db.csig=sig;
+ const rows=(r.data||[]).slice().reverse().map(m=>({id:m.id,uid:m.user_id,role:m.role,content:m.content,created_at:m.created_at,scope:m.scope}));
+ const oldAll=[...S.db.msgs.shared,...S.db.msgs.private],old=new Set(oldAll.map(m=>m.id)),pend=oldAll.filter(m=>m.pending);
+ const fresh=S.db.chatInit?rows.filter(m=>m.scope==='shared'&&m.role==='user'&&m.uid!==S.user&&!old.has(m.id)):[];
+ S.db.msgs={shared:rows.filter(m=>m.scope==='shared'),private:rows.filter(m=>m.scope==='private')};
+ pend.forEach(p=>S.db.msgs[p.scope].push(p));S.db.chatInit=true;
+ if(fresh.length&&!(S.tab==='ai'&&S.aiMode==='shared')){S.unread=true;toast('💬 رسالة جديدة من '+nameOf(fresh[fresh.length-1].uid))}
+ return true}
+async function refreshAll(){if(S.syncing||!sb||!S.hh||S.gate)return;S.syncing=true;let ch=false;
+ try{if(S.hh.members.length<2&&(S.db.tick++%5===0)){const n=S.hh.members.length;await loadHousehold();if(S.hh.members.length!==n)ch=true}
+  const a=await refreshShop(),b=await refreshChat();ch=ch||a||b;if(S.db.err){S.db.err='';ch=true}}
+ catch(e){const m=msgOf(e);if(S.db.err!==m){S.db.err=m;ch=true}}
+ S.syncing=false;if(ch)render()}
+let kickT=null;function kick(){clearTimeout(kickT);kickT=setTimeout(refreshAll,200)}
+function startSync(){if(S.sync||!sb||!S.hh)return;const hid=S.hh.id,f='household_id=eq.'+hid;S.sync={};
+ try{S.sync.ch=sb.channel('tg-'+hid).on('postgres_changes',{event:'*',schema:'public',table:'purchase_requests',filter:f},kick)
+   .on('postgres_changes',{event:'*',schema:'public',table:'shopping_items',filter:f},kick).on('postgres_changes',{event:'*',schema:'public',table:'ai_messages',filter:f},kick)
+   .subscribe(st=>{S.db.rt=st;if(st==='SUBSCRIBED')kick()})}catch(e){S.db.rt='error'}
+ S.sync.timer=setInterval(()=>{if(!document.hidden)refreshAll()},6000);
+ if(!S.evBound){S.evBound=true;document.addEventListener('visibilitychange',()=>{if(!document.hidden)kick()});if(window.addEventListener){window.addEventListener('online',kick);window.addEventListener('focus',kick)}}}
+function stopSync(){if(!S.sync)return;try{if(S.sync.ch&&sb)sb.removeChannel(S.sync.ch)}catch(e){}clearInterval(S.sync.timer);S.sync=null}
+async function firstLoad(){startSync();try{await refreshShop();await refreshChat()}catch(e){S.db.err=msgOf(e)}}
+const KEEP=['q','in','pr','sn','sa','sd','wa'];
+function keepIn(){const o={};try{KEEP.forEach(id=>{const e=document.getElementById(id);if(e&&typeof e.value==='string'&&e.value)o[id]=e.value});o._f=document.activeElement&&document.activeElement.id}catch(e){}return o}
+function restoreIn(o){try{KEEP.forEach(id=>{if(o[id]){const e=document.getElementById(id);if(e)e.value=o[id]}});if(o._f&&KEEP.includes(o._f)){const e=document.getElementById(o._f);if(e&&e.focus)e.focus()}}catch(e){}}
+async function shopAdd(name,price){if(!sb||!S.hh)return;if(!S.db.listId){try{await refreshShop()}catch(e){}}
+ if(!S.db.listId){toast('تعذّر تحديد قائمة التسوّق. حاول لاحقًا.');return}
+ name=String(name||'').trim().slice(0,80);price=Math.max(0,Math.round(Number(price)||0));if(!name)return;
+ try{const r=await sb.from('shopping_items').insert({list_id:S.db.listId,name,est_price:price,quantity:1});if(r.error)throw r.error;S.review=null;S.db.sig='';await refreshShop();render()}catch(e){toast(msgOf(e))}}
+function submit(){if(S.sending||!S.draft.length)return;if(!partnerOk()){toast('ادعُ شريكك أولًا ليتمكن من الموافقة');return}const a=analyze(total(S.draft));if(a.ok)sendReq(a);else{S.review=a;render()}}
+async function sendReq(a){if(S.sending)return;S.sending=true;render();
+ try{const r=await sb.rpc('create_purchase_request',{p_item_ids:S.draft.map(i=>i.id),p_note:null});if(r.error)throw r.error;
+  S.review=null;S.composing=false;S.db.sig='';await refreshShop();S.log.unshift('🛒 طلب جديد من '+USERS[S.user].name);toast('✅ تم إرسال الطلب بنجاح')}
+ catch(e){S.db.sig='';try{await refreshShop()}catch(x){}toast(msgOf(e))}
+ S.sending=false;render()}
+async function rpcAct(name,args,okMsg,after){if(S.rbusy||!sb||!S.req)return;S.rbusy=true;S.push=false;render();
+ try{const r=await sb.rpc(name,args);if(r.error)throw r.error;S.db.sig='';await refreshShop();if(okMsg)toast(okMsg);if(after)after(r.data)}
+ catch(e){S.db.sig='';try{await refreshShop()}catch(x){}toast(msgOf(e))}
+ S.rbusy=false;render()}
+async function ask(q){q=String(q||'').trim();if(!q||S.sendingMsg||!sb||!S.hh)return;q=q.slice(0,2000);const scope=S.aiMode==='private'?'private':'shared';
+ const tmp={id:'tmp'+Date.now(),uid:S.user,role:'user',content:q,scope,pending:true};S.db.msgs[scope].push(tmp);S.sendingMsg=true;S.msgErr='';
+ const inp=document.getElementById('q');if(inp)inp.value='';render();let err=null;
+ try{const r=await sb.from('ai_messages').insert({scope,role:'user',content:q}).select('id,user_id,scope,role,content,created_at').single();if(r.error)throw r.error;
+  const row={id:r.data.id,uid:r.data.user_id,role:r.data.role,content:r.data.content,created_at:r.data.created_at,scope},i=S.db.msgs[scope].indexOf(tmp);if(i>=0)S.db.msgs[scope][i]=row;
+  S.db.msgs[scope]=S.db.msgs[scope].filter((m,k,a)=>a.findIndex(x=>x.id===m.id)===k);S.db.csig=''}
+ catch(e){err=e;S.db.msgs[scope]=S.db.msgs[scope].filter(m=>m!==tmp);S.msgErr='تعذّر إرسال الرسالة. تحقق من الاتصال وحاول مجددًا.'}
+ S.sendingMsg=false;if(!err){const pp=learn(q);if(pp){S.pend=pp;S.local[scope].push({r:'a',t:pp.t,btns:1})}}
+ render();const i2=document.getElementById('q');if(err&&i2)i2.value=q}
+const clearBtns=()=>[...S.local.shared,...S.local.private].forEach(m=>delete m.btns);
+Object.assign(A,{
+ add(e){return shopAdd(e.dataset.n,CATALOG[e.dataset.n])},
+ addc(){const n=val('in'),p=+val('pr')||1000;['in','pr'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});return shopAdd(n,p)},
+ async rm(e){const it=S.draft[+e.dataset.k];if(!it||!sb)return;try{const r=await sb.from('shopping_items').delete().eq('id',it.id);if(r.error)throw r.error;S.review=null;S.db.sig='';await refreshShop();render()}catch(er){toast(msgOf(er))}},
+ approve(){if(S.req)return rpcAct('decide_purchase_request',{p_request:S.req.id,p_decision:'approved'},'✅ تمت الموافقة على الطلب',()=>{S.tab='shop'})},
+ reject(){if(S.req)return rpcAct('decide_purchase_request',{p_request:S.req.id,p_decision:'rejected'},'❌ تم رفض الطلب',()=>{S.tab='shop'})},
+ adv(){if(S.req)return rpcAct('advance_fulfillment',{p_request:S.req.id},null,d=>{if(d==='delivered')toast('📦 تم التسليم وتحديث الميزانية')})},
+ rcancel(){if(S.req)return rpcAct('cancel_purchase_request',{p_request:S.req.id},'تم إلغاء الطلب')},
+ tab(e){S.sheet=null;S.tab=e.dataset.t;S.push=false;if(e.dataset.t==='ai'&&S.aiMode==='shared')S.unread=false;render()},
+ mode(e){S.aiMode=e.dataset.m;if(S.aiMode==='shared')S.unread=false;S.msgErr='';render()},
+ lyes(){const p=S.pend;if(!p)return;S.pend=null;clearBtns();p.apply();S.local[S.aiMode==='private'?'private':'shared'].push({r:'a',t:'تم ✅ '+p.ok});render();toast('✅ تم الحفظ')},
+ lno(){S.pend=null;clearBtns();S.local[S.aiMode==='private'?'private':'shared'].push({r:'a',t:'حسنًا، لن أحفظ ذلك.'});render()}
+});
+screens.ai=function(){const pr=S.aiMode==='private',scope=pr?'private':'shared',ms=S.db.msgs[scope],loc=S.local[scope],pn=USERS[USERS[S.user].other].name;
+ const qs=pr?[`ما الهدية التي قد تعجب ${pn}؟`,'اعرض لي كل ما قاله شريكي لك بشكل خاص']:['هل يمكننا شراء هاتف بـ 35 ألف دج؟','فاتورة الكهرباء هذا الشهر كانت 7000 دج','صرفنا 20 ألف على ملابس الأطفال','ما الفواتير القادمة؟'];
+ const bub=m=>{const mine=m.uid===S.user,cls=m.role==='assistant'?'a':mine?'u':'p';return `<div class="m ${cls}" dir="auto" style="${m.pending?'opacity:.6':''}">${cls==='p'?`<small class="who">${USERS[m.uid].name}</small>`:''}${escH(m.content).replace(/\n/g,'<br>')}</div>`};
+ return`<h2>TogetherAI</h2>${syncBar()}<div class="sw" style="margin:8px 0 12px"><button style="flex:1" class="${pr?'':'on'}" data-a="mode" data-m="shared">❤️ مشترك</button><button style="flex:1" class="${pr?'on':''}" data-a="mode" data-m="private">🔒 المساعد الخاص</button></div>
+ ${pr?'<div class="card" style="background:var(--soft);padding:12px;font-size:14px">🔒 هذه المحادثة خاصة بك. لن يتم عرضها لشريكك.</div>':'<p class="sub">محادثة مشتركة: يرى شريكك كل رسائلها.</p>'}
+ <div class="msgs">${ms.length||loc.length?'':'<div class="empty">لا رسائل بعد. اكتب أول رسالة.</div>'}${ms.map(bub).join('')}${loc.map(m=>`<div class="m a">${m.t}${m.btns&&S.pend?`<div class="btns"><button class="btn ok" style="padding:8px" data-a="lyes">${S.pend.y}</button><button class="btn alt" style="padding:8px" data-a="lno">${S.pend.n}</button></div>`:''}</div>`).join('')}</div>
+ ${S.msgErr?`<p class="err">${escH(S.msgErr)}</p>`:''}<p class="sub" style="font-size:12px;margin:4px 0">🤖 المساعد الذكي لم يُربط بالنموذج بعد، لذلك لا توجد ردود آلية الآن. رسائلك محفوظة${pr?' ولا يراها شريكك':' ويراها شريكك'}.</p>
+ <div class="chips">${qs.map(q=>`<button class="chip" data-a="q" data-q="${escH(q)}">${escH(q)}</button>`).join('')}</div>
+ <div class="ask"><input id="q" dir="auto" placeholder="${pr?'اكتب بخصوصية':'اكتب رسالة أو سؤالًا'}" maxlength="1000" autocomplete="off"><button data-a="send" ${S.sendingMsg?'disabled':''}>➤</button></div>`};
 
 boot();
 </script></body></html>
